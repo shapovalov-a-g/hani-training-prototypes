@@ -1,0 +1,4683 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hani | Админка администратора точки</title>
+  <style>
+    :root {
+      --bg: #f5f1ea;
+      --panel: #fffdf8;
+      --ink: #202421;
+      --muted: #6f746e;
+      --line: #ded7cc;
+      --accent: #176f63;
+      --accent-dark: #0f5148;
+      --blue: #2f5f8f;
+      --amber: #d99a2b;
+      --red: #b64b3b;
+      --green-soft: #e6f2ed;
+      --blue-soft: #e6eef7;
+      --amber-soft: #fbefd6;
+      --red-soft: #f7e3df;
+      --shadow: 0 18px 45px rgba(32, 36, 33, 0.16);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(23, 111, 99, 0.08), transparent 36%),
+        linear-gradient(145deg, #f5f1ea, #e8e1d7);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .page-shell {
+      width: min(100%, 1240px);
+      display: grid;
+      grid-template-columns: minmax(230px, 280px) minmax(320px, 1fr);
+      gap: 18px;
+      align-items: start;
+      justify-content: center;
+    }
+
+    .prototype-stage {
+      display: grid;
+      gap: 18px;
+    }
+
+    .desktop-shell {
+      min-height: 720px;
+      max-height: calc(100vh - 36px);
+      min-width: 0;
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .desktop-sidebar {
+      background: #202421;
+      color: #fff;
+      padding: 16px 12px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 18px;
+    }
+
+    .desktop-brand small {
+      display: block;
+      color: rgba(255, 255, 255, 0.66);
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .desktop-brand strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.18;
+    }
+
+    .desktop-nav {
+      display: grid;
+      align-content: start;
+      gap: 6px;
+    }
+
+    .desktop-nav-btn {
+      min-height: 42px;
+      border-radius: var(--radius);
+      background: transparent;
+      color: rgba(255, 255, 255, 0.72);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 10px;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: left;
+    }
+
+    .desktop-nav-btn b {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 11px;
+    }
+
+    .desktop-nav-btn.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .desktop-nav-btn.active b {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .desktop-main {
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      background: var(--bg);
+    }
+
+    .desktop-top {
+      background: rgba(255, 253, 248, 0.96);
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .desktop-top small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 3px;
+    }
+
+    .desktop-top strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1.1;
+    }
+
+    .desktop-content {
+      min-height: 0;
+      overflow: auto;
+      padding: 18px;
+      scrollbar-width: thin;
+    }
+
+    .desktop-shell .metric-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .desktop-shell .list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .desktop-shell .form-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .desktop-shell .field textarea,
+    .desktop-shell .button-row.one,
+    .desktop-shell .toggle-line {
+      grid-column: 1 / -1;
+    }
+
+    .mobile-preview {
+      display: grid;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .mobile-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      text-align: center;
+    }
+
+    .prototype-note {
+      background: rgba(255, 253, 248, 0.9);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 14px 30px rgba(32, 36, 33, 0.08);
+    }
+
+    .prototype-note h1 {
+      font-size: 18px;
+      line-height: 1.2;
+      margin: 0 0 8px;
+    }
+
+    .prototype-note p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .note-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .note-pill {
+      display: block;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 9px 10px;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .phone {
+      width: min(100%, 420px);
+      height: min(880px, calc(100vh - 28px));
+      background: #151515;
+      border-radius: 34px;
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .screen {
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: 25px;
+      background: var(--bg);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .topbar {
+      background: rgba(255, 253, 248, 0.96);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+    }
+
+    .topbar small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+      margin-bottom: 2px;
+    }
+
+    .topbar strong {
+      display: block;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .top-action {
+      min-height: 36px;
+      border-radius: var(--radius);
+      background: var(--accent);
+      color: #fff;
+      padding: 0 12px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    main {
+      min-height: 0;
+      overflow: auto;
+      padding: 14px;
+      scrollbar-width: none;
+    }
+
+    main::-webkit-scrollbar {
+      display: none;
+    }
+
+    .view {
+      display: none;
+      animation: appear 160ms ease-out;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .view-head {
+      margin-bottom: 12px;
+    }
+
+    .view-head h2 {
+      margin: 0 0 5px;
+      font-size: 20px;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .view-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .metric {
+      min-height: 74px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 10px;
+      display: grid;
+      align-content: space-between;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 22px;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      overflow: auto;
+      padding-bottom: 2px;
+      margin-bottom: 10px;
+      scrollbar-width: none;
+    }
+
+    .toolbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .network-filters {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .filter-field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .filter-field label {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .filter-field select {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .chip {
+      min-height: 34px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      padding: 0 11px;
+      font-size: 12px;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+
+    .chip.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 8px 18px rgba(32, 36, 33, 0.04);
+    }
+
+    .people-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      font-size: 12px;
+    }
+
+    .people-table th,
+    .people-table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .people-table th {
+      color: var(--muted);
+      background: #fff;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .people-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .person-cell {
+      display: grid;
+      gap: 3px;
+      min-width: 170px;
+    }
+
+    .person-cell strong {
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .person-cell span,
+    .table-sub {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .table-progress {
+      display: grid;
+      gap: 5px;
+      min-width: 96px;
+    }
+
+    .table-progress b {
+      font-size: 13px;
+    }
+
+    .table-link {
+      border: 0;
+      background: transparent;
+      color: var(--accent-dark);
+      padding: 0;
+      font-weight: 900;
+      text-align: left;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .attempts-left {
+      display: inline-flex;
+      min-height: 28px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 0 9px;
+      background: var(--green-soft);
+      color: var(--accent-dark);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .attempts-left.low {
+      background: var(--amber-soft);
+      color: #8b5d00;
+    }
+
+    .attempts-left.empty {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .funnel-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .funnel-step {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      box-shadow: 0 8px 18px rgba(32, 36, 33, 0.04);
+    }
+
+    .funnel-step-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .funnel-step-head strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.25;
+    }
+
+    .funnel-step-head span {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .conversion-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      border-radius: 999px;
+      padding: 0 10px;
+      background: var(--green-soft);
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .conversion-pill.warn {
+      background: var(--amber-soft);
+      color: #8b5d00;
+    }
+
+    .conversion-pill.danger {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .funnel-bar {
+      height: 10px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .funnel-bar i {
+      display: block;
+      height: 100%;
+      width: var(--value);
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--blue));
+    }
+
+    .funnel-meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .funnel-meta .meta {
+      margin: 0;
+    }
+
+    .alert-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .alert-card {
+      border: 1px solid rgba(182, 75, 59, 0.22);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #fff, rgba(247, 227, 223, 0.52));
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      box-shadow: 0 8px 18px rgba(32, 36, 33, 0.04);
+    }
+
+    .alert-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .alert-title {
+      display: grid;
+      gap: 3px;
+    }
+
+    .alert-title strong {
+      font-size: 14px;
+      line-height: 1.25;
+    }
+
+    .alert-title span {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .alert-channels {
+      display: grid;
+      gap: 7px;
+    }
+
+    .alert-channel {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 9px;
+      display: grid;
+      gap: 3px;
+    }
+
+    .alert-channel b {
+      font-size: 12px;
+    }
+
+    .alert-channel span {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .alert-channel.push {
+      border-color: rgba(47, 95, 143, 0.22);
+      background: var(--blue-soft);
+    }
+
+    .item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 12px;
+      box-shadow: 0 8px 18px rgba(32, 36, 33, 0.04);
+    }
+
+    .item.compact {
+      padding: 10px;
+    }
+
+    .item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .item-title {
+      min-width: 0;
+    }
+
+    .item-title h3 {
+      margin: 0 0 4px;
+      font-size: 15px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .item-title p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      border-radius: 999px;
+      padding: 0 9px;
+      font-size: 11px;
+      font-weight: 850;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+
+    .status.study {
+      background: var(--blue-soft);
+      color: var(--blue);
+      border-color: rgba(47, 95, 143, 0.16);
+    }
+
+    .status.retake {
+      background: var(--amber-soft);
+      color: #8b5d00;
+      border-color: rgba(217, 154, 43, 0.22);
+    }
+
+    .status.danger {
+      background: var(--red-soft);
+      color: var(--red);
+      border-color: rgba(182, 75, 59, 0.18);
+    }
+
+    .status.done {
+      background: var(--green-soft);
+      color: var(--accent-dark);
+      border-color: rgba(23, 111, 99, 0.16);
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin: 10px 0;
+    }
+
+    .meta {
+      border: 1px solid #eee5d9;
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 8px;
+      min-height: 48px;
+    }
+
+    .meta span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.2;
+      margin-bottom: 3px;
+    }
+
+    .meta b {
+      display: block;
+      font-size: 12px;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .progress {
+      height: 8px;
+      background: #ebe3d8;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 9px 0 7px;
+    }
+
+    .progress > i {
+      display: block;
+      height: 100%;
+      width: var(--value);
+      background: linear-gradient(90deg, var(--accent), var(--amber));
+      border-radius: inherit;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .button-row.one {
+      grid-template-columns: 1fr;
+    }
+
+    .btn {
+      min-height: 40px;
+      border-radius: var(--radius);
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn.warn {
+      background: var(--amber-soft);
+      border-color: rgba(217, 154, 43, 0.45);
+      color: #7a5100;
+    }
+
+    .btn.danger {
+      background: var(--red-soft);
+      border-color: rgba(182, 75, 59, 0.35);
+      color: var(--red);
+    }
+
+    .back-btn {
+      min-height: 36px;
+      border-radius: var(--radius);
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 850;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      margin: 16px 0 8px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .block-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 9px;
+    }
+
+    .block-line + .block-line {
+      margin-top: 7px;
+    }
+
+    .block-line strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.25;
+      margin-bottom: 2px;
+    }
+
+    .block-line span {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .assigned-blocks {
+      grid-column: 1 / -1;
+      display: grid;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .assigned-block {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #faf7f2;
+      padding: 7px 8px;
+    }
+
+    .assigned-block span {
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .assigned-block small {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .error-box {
+      border: 1px solid rgba(182, 75, 59, 0.24);
+      background: var(--red-soft);
+      border-radius: var(--radius);
+      padding: 10px;
+      font-size: 12px;
+      line-height: 1.38;
+    }
+
+    .error-box + .error-box {
+      margin-top: 8px;
+    }
+
+    .error-box b {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .mistake-source {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    .mistake-source span {
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+      min-height: 24px;
+      border: 1px solid rgba(23, 111, 99, 0.18);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--accent-dark);
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .mistake-source .critical {
+      border-color: rgba(182, 75, 59, 0.24);
+      background: #fff5f2;
+      color: var(--red);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .content-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .desktop-shell .content-stack .list,
+    .content-stack .list {
+      grid-template-columns: 1fr;
+    }
+
+    .content-stack .item {
+      box-shadow: none;
+    }
+
+    .question-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 10px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .content-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .tab-btn {
+      min-height: 38px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      padding: 0 8px;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .editor-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .tool-btn {
+      min-height: 30px;
+      min-width: 34px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .upload-box {
+      border: 1px dashed #cfc5b8;
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .block-picker {
+      display: grid;
+      gap: 8px;
+    }
+
+    .answer-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .answer-row input[type="checkbox"],
+    .check-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+    .check-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .retake-course-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .retake-empty {
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      padding: 14px 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    .retake-choice {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 9px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .retake-choice-actions {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 7px;
+      align-items: end;
+    }
+
+    .retake-choice-actions .btn {
+      min-height: 42px;
+    }
+
+    .retake-course-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .retake-course-actions .btn {
+      min-height: 34px;
+      font-size: 12px;
+      padding: 0 10px;
+    }
+
+    .retake-course {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .retake-course summary {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 11px;
+      font-size: 13px;
+      font-weight: 800;
+      list-style: none;
+    }
+
+    .retake-course summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .retake-course summary::after {
+      content: "+";
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .retake-course[open] summary::after {
+      content: "-";
+    }
+
+    .retake-course summary span {
+      display: grid;
+      gap: 3px;
+    }
+
+    .retake-course summary small {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .retake-options {
+      display: grid;
+      gap: 6px;
+      padding: 0 9px 9px;
+    }
+
+    .retake-options .check-item {
+      background: #faf7f1;
+      padding: 8px;
+    }
+
+    .check-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: start;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 9px;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .field label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      padding: 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 92px;
+      resize: vertical;
+      line-height: 1.35;
+    }
+
+    .toggle-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .switch {
+      position: relative;
+      width: 46px;
+      height: 26px;
+      border-radius: 999px;
+      background: #d2cabf;
+      flex: 0 0 auto;
+    }
+
+    .switch input {
+      position: absolute;
+      opacity: 0;
+      inset: 0;
+    }
+
+    .switch i {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      left: 3px;
+      top: 3px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 160ms ease, background 160ms ease;
+      box-shadow: 0 2px 4px rgba(32, 36, 33, 0.18);
+    }
+
+    .switch input:checked + i {
+      transform: translateX(20px);
+      background: #fff;
+    }
+
+    .switch:has(input:checked) {
+      background: var(--accent);
+    }
+
+    .bottom-nav {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+      background: rgba(255, 253, 248, 0.96);
+      border-top: 1px solid var(--line);
+      padding: 7px 6px 9px;
+    }
+
+    .nav-btn {
+      min-height: 48px;
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--muted);
+      display: grid;
+      place-items: center;
+      gap: 2px;
+      padding: 4px 2px;
+      font-size: 10px;
+      font-weight: 780;
+      line-height: 1.08;
+      text-align: center;
+    }
+
+    .nav-btn b {
+      display: grid;
+      place-items: center;
+      width: 19px;
+      height: 19px;
+      border-radius: 5px;
+      background: #efe8de;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .nav-btn.active {
+      color: var(--accent-dark);
+      background: var(--green-soft);
+    }
+
+    .nav-btn.active b {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(20, 22, 20, 0.42);
+      padding: 18px;
+      z-index: 20;
+    }
+
+    .modal.active {
+      display: grid;
+    }
+
+    .modal-card {
+      width: min(100%, 390px);
+      max-height: min(760px, calc(100vh - 30px));
+      overflow: auto;
+      background: var(--panel);
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .modal-card h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .modal-card p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%) translateY(18px);
+      min-width: min(340px, calc(100vw - 28px));
+      border-radius: var(--radius);
+      background: #202421;
+      color: #fff;
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 1.35;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      z-index: 30;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 10px;
+      }
+
+      .page-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .prototype-note {
+        order: -1;
+      }
+
+      .desktop-shell {
+        display: none;
+      }
+
+      .phone {
+        justify-self: center;
+        height: min(880px, calc(100vh - 20px));
+      }
+    }
+    /* T-344 visual skin: 4sell admin/webview style, visual-only overrides. */
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --ink: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #22c55e;
+      --accent-dark: #166534;
+      --blue: #2563eb;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --green-soft: #dcfce7;
+      --blue-soft: #dbeafe;
+      --amber-soft: #fef3c7;
+      --red-soft: #fee2e2;
+      --shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+      --radius: 12px;
+      font-family: Manrope, "Nunito Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.1), transparent 34rem),
+        linear-gradient(180deg, #ffffff 0%, var(--bg) 42%, #eef2f7 100%);
+      color: var(--ink);
+      padding: 16px;
+    }
+
+    .page-shell {
+      width: min(100%, 1440px);
+      grid-template-columns: minmax(230px, 280px) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .prototype-note,
+    .desktop-shell,
+    .phone,
+    .item,
+    .metric,
+    .modal-card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+
+    .prototype-note {
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .prototype-note h1 {
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 850;
+      letter-spacing: -0.02em;
+    }
+
+    .note-pill {
+      border-radius: 10px;
+      background: #ffffff;
+      font-weight: 760;
+      transition: border-color 160ms ease, background 160ms ease;
+    }
+
+    .note-pill:hover {
+      border-color: rgba(34, 197, 94, 0.38);
+      background: rgba(34, 197, 94, 0.06);
+    }
+
+    .desktop-shell {
+      grid-template-columns: 272px minmax(0, 1fr);
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+    }
+
+    .desktop-sidebar {
+      background: #ffffff;
+      color: var(--ink);
+      border-right: 1px solid var(--line);
+      padding: 18px 14px;
+    }
+
+    .desktop-brand {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+    }
+
+    .desktop-brand small {
+      color: var(--muted);
+      font-weight: 760;
+    }
+
+    .desktop-brand strong {
+      color: var(--ink);
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .desktop-nav {
+      gap: 5px;
+    }
+
+    .desktop-nav-btn {
+      min-height: 38px;
+      border-radius: 10px;
+      color: var(--muted);
+      font-weight: 760;
+      transition: background 160ms ease, color 160ms ease;
+    }
+
+    .desktop-nav-btn b {
+      background: #f5f7fb;
+      color: var(--muted);
+      border-radius: 8px;
+    }
+
+    .desktop-nav-btn.active {
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--accent-dark);
+    }
+
+    .desktop-nav-btn.active b {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .desktop-main {
+      background: var(--bg);
+    }
+
+    .desktop-top,
+    .topbar,
+    .bottom-nav {
+      background: rgba(255, 255, 255, 0.94);
+      border-color: var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    .desktop-top {
+      padding: 16px 20px;
+    }
+
+    .desktop-top small,
+    .topbar small,
+    .view-head p,
+    .item-title p,
+    .meta span,
+    .block-line span,
+    .field label {
+      color: var(--muted);
+    }
+
+    .desktop-top strong,
+    .topbar strong,
+    .view-head h2,
+    .item-title h3 {
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+
+    .desktop-content {
+      padding: 20px;
+    }
+
+    .phone {
+      padding: 0;
+      background: #ffffff;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .screen {
+      border-radius: 24px;
+      background: var(--bg);
+    }
+
+    main {
+      padding: 12px;
+    }
+
+    .top-action,
+    .btn.primary,
+    .chip.active,
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 8px 22px rgba(34, 197, 94, 0.16);
+    }
+
+    .btn,
+    .back-btn,
+    .chip,
+    .tab-btn,
+    .tool-btn {
+      border-color: var(--line);
+      border-radius: 10px;
+      background: #ffffff;
+      color: var(--ink);
+      transition: transform 120ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .btn:active,
+    .back-btn:active,
+    .chip:active,
+    .tab-btn:active,
+    .desktop-nav-btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn.warn {
+      background: var(--amber-soft);
+      border-color: #fde68a;
+      color: #92400e;
+    }
+
+    .btn.danger {
+      background: var(--red-soft);
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+
+    .metric,
+    .item,
+    .meta,
+    .block-line,
+    .question-card,
+    .retake-choice,
+    .retake-course,
+    .check-item,
+    .toggle-line,
+    .upload-box {
+      border-color: var(--line);
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .metric b {
+      color: var(--ink);
+      font-size: 24px;
+      letter-spacing: -0.03em;
+    }
+
+    .status.study {
+      background: var(--blue-soft);
+      border-color: #bfdbfe;
+      color: #1d4ed8;
+    }
+
+    .status.retake {
+      background: var(--amber-soft);
+      border-color: #fde68a;
+      color: #92400e;
+    }
+
+    .status.danger {
+      background: var(--red-soft);
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+
+    .status.done {
+      background: rgba(34, 197, 94, 0.1);
+      border-color: rgba(34, 197, 94, 0.28);
+      color: var(--accent-dark);
+    }
+
+    .progress {
+      height: 5px;
+      background: #e5e7eb;
+    }
+
+    .progress > i {
+      background: var(--accent);
+    }
+
+    .content-tabs {
+      gap: 6px;
+    }
+
+    .tab-btn.active {
+      background: rgba(34, 197, 94, 0.1);
+      border-color: rgba(34, 197, 94, 0.42);
+      color: var(--accent-dark);
+      box-shadow: none;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      border-color: var(--line);
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+    }
+
+    .switch {
+      background: #d1d5db;
+    }
+
+    .switch:has(input:checked) {
+      background: var(--accent);
+    }
+
+    .nav-btn {
+      border-radius: 10px;
+    }
+
+    .nav-btn b {
+      background: #f5f7fb;
+      color: var(--muted);
+      border-radius: 7px;
+    }
+
+    .nav-btn.active {
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--accent-dark);
+    }
+
+    .nav-btn.active b {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .modal {
+      background: rgba(15, 23, 42, 0.42);
+    }
+
+    .modal-card {
+      border-radius: 18px;
+    }
+
+    .toast {
+      background: #111827;
+      border-radius: 12px;
+      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.22);
+    }
+
+    @media (max-width: 1100px) {
+      .page-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .prototype-note {
+        order: -1;
+      }
+
+      .desktop-shell {
+        min-height: 680px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        display: block;
+        padding: 8px;
+      }
+
+      .page-shell {
+        width: 100%;
+        gap: 10px;
+      }
+
+      .prototype-note {
+        padding: 12px;
+      }
+
+      .desktop-shell {
+        display: none;
+      }
+
+      .phone {
+        width: 100%;
+        height: min(860px, calc(100dvh - 154px));
+        min-height: 620px;
+        border-radius: 18px;
+      }
+
+      .screen {
+        border-radius: 18px;
+      }
+
+      .metric-grid,
+      .meta-grid,
+      .button-row,
+      .network-filters,
+      .funnel-meta,
+      .retake-choice-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .table-wrap {
+        overflow: visible;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .people-table {
+        min-width: 0;
+        border-collapse: separate;
+        border-spacing: 0 9px;
+      }
+
+      .people-table thead {
+        display: none;
+      }
+
+      .people-table,
+      .people-table tbody,
+      .people-table tr,
+      .people-table td {
+        display: block;
+        width: 100%;
+      }
+
+      .people-table tr {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+        padding: 9px;
+        box-shadow: 0 8px 18px rgba(32, 36, 33, 0.04);
+      }
+
+      .people-table td {
+        border: 0;
+        padding: 7px 0;
+      }
+
+      .people-table td + td {
+        border-top: 1px solid var(--line);
+      }
+
+      .people-table td::before {
+        content: attr(data-label);
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 850;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+
+      .content-tabs {
+        grid-template-columns: repeat(4, minmax(72px, 1fr));
+        overflow-x: auto;
+      }
+    }
+
+    @media (max-width: 420px) {
+      body {
+        padding: 0;
+      }
+
+      .prototype-note {
+        border-radius: 0;
+        border-inline: 0;
+      }
+
+      .phone,
+      .screen {
+        border-radius: 0;
+        border-inline: 0;
+      }
+
+      .phone {
+        height: calc(100dvh - 126px);
+        min-height: 560px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <aside class="prototype-note">
+      <h1>Админка администратора точки</h1>
+      <p>Обычный администратор видит стажёров, сотрудников, воронку и алерты только по закреплённым точкам.</p>
+      <div class="note-list">
+        <a class="note-pill" href="./prototype_stazher_hani.html">Открыть прототип стажёра</a>
+        <a class="note-pill" href="./prototype_stazher_hani.html?retrain=1">Открыть приложение переобучения</a>
+        <a class="note-pill" href="./prototype_admin_hani_super.html">Открыть супер-админку</a>
+        <span class="note-pill">Основной файл: ТЗ_админка_MVP_Hani.md</span>
+      </div>
+    </aside>
+
+    <div class="prototype-stage">
+      <section class="desktop-shell" aria-label="Desktop версия админки">
+        <aside class="desktop-sidebar">
+          <div class="desktop-brand">
+            <small>Hani обучение</small>
+            <strong>Админка MVP</strong>
+          </div>
+          <nav class="desktop-nav" aria-label="Разделы desktop админки">
+            <button class="desktop-nav-btn active" data-view="trainees"><b>1</b><span>Стажёры</span></button>
+            <button class="desktop-nav-btn" data-view="finalStages"><b>2</b><span>Итоговые этапы</span></button>
+            <button class="desktop-nav-btn" data-view="employees"><b>3</b><span>Сотрудники</span></button>
+            <button class="desktop-nav-btn" data-view="accounts"><b>4</b><span>Аккаунты</span></button>
+            <button class="desktop-nav-btn" data-view="analytics"><b>5</b><span>Воронка</span></button>
+            <button class="desktop-nav-btn" data-view="alerts"><b>6</b><span>Алерты</span></button>
+            <button class="desktop-nav-btn" data-view="content"><b>7</b><span>Контент обучения</span></button>
+            <button class="desktop-nav-btn" data-view="settings"><b>8</b><span>Настройки</span></button>
+          </nav>
+        </aside>
+        <section class="desktop-main">
+          <header class="desktop-top">
+            <div>
+              <small>Desktop версия</small>
+              <strong id="desktopTitle">Стажёры</strong>
+            </div>
+          </header>
+          <main class="desktop-content" id="desktopApp"></main>
+        </section>
+      </section>
+
+      <div class="mobile-preview">
+        <div class="mobile-label">Mobile версия</div>
+        <div class="phone">
+          <div class="screen">
+            <header class="topbar">
+              <div>
+                <small>Hani обучение</small>
+                <strong id="screenTitle">Стажёры</strong>
+              </div>
+            </header>
+
+            <main id="app"></main>
+
+            <nav class="bottom-nav" aria-label="Разделы админки">
+              <button class="nav-btn active" data-view="trainees"><b>1</b><span>Стажёры</span></button>
+              <button class="nav-btn" data-view="finalStages"><b>2</b><span>Итог</span></button>
+              <button class="nav-btn" data-view="employees"><b>3</b><span>Сотр.</span></button>
+              <button class="nav-btn" data-view="accounts"><b>4</b><span>Акк.</span></button>
+              <button class="nav-btn" data-view="analytics"><b>5</b><span>Воронка</span></button>
+              <button class="nav-btn" data-view="alerts"><b>6</b><span>Алерты</span></button>
+              <button class="nav-btn" data-view="content"><b>7</b><span>Контент</span></button>
+              <button class="nav-btn" data-view="settings"><b>8</b><span>Настр.</span></button>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-card" id="modalCard"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const ADMIN_MODE = "admin";
+    const FIXED_VIEWER_ACCOUNT_ID = ADMIN_MODE === "super" ? "acc-super-roma" : "acc-admin-madina";
+
+    const state = {
+      view: "trainees",
+      selectedTraineeId: null,
+      selectedReturnView: "trainees",
+      filter: "all",
+      contentTab: "video",
+      viewerAccountId: FIXED_VIEWER_ACCOUNT_ID,
+      filters: {
+        trainees: { city: "all", branch: "all", status: "all" },
+        finalStages: { city: "all", branch: "all", status: "all" },
+        employees: { city: "all", branch: "all", status: "all" },
+        accounts: { city: "all", branch: "all", status: "all" },
+        analytics: { city: "all", branch: "all", status: "all" },
+        alerts: { city: "all", branch: "all", status: "all" }
+      },
+      selectedPersonType: "trainees",
+      branchesByCity: {
+        "Алматы": ["Абая", "Mega", "Dostyk", "Forum"],
+        "Астана": ["Khan Shatyr", "Mega Silk Way"],
+        "Шымкент": ["Shymkent Plaza"]
+      },
+      settings: {
+        attempts: 2,
+        dailyLimit: 2,
+        sequentialBlocks: true
+      },
+      funnel: [
+        { id: "course-1", title: "Курс 1. Хани, команда и правила работы", stage: "Вводный курс", city: "Алматы", branch: "Абая", avgTimeHours: 3.2, entrants: 48, completed: 44, conversion: 92 },
+        { id: "course-2", title: "Курс 2. Сервис и общение с гостем", stage: "Сервис", city: "Алматы", branch: "Абая", avgTimeHours: 4.1, entrants: 44, completed: 38, conversion: 86 },
+        { id: "course-3", title: "Курс 3. Продукт, меню и составы", stage: "Продукт", city: "Алматы", branch: "Абая", avgTimeHours: 6.4, entrants: 38, completed: 31, conversion: 82 },
+        { id: "course-4", title: "Курс 4. Продажи и допродажи", stage: "Продажи", city: "Алматы", branch: "Абая", avgTimeHours: 5.6, entrants: 31, completed: 25, conversion: 81 },
+        { id: "live-check", title: "Живая ролевая проверка", stage: "Финал", city: "Алматы", branch: "Абая", avgTimeHours: 1.3, entrants: 25, completed: 22, conversion: 88 },
+        { id: "dostyk-course-1", title: "Курс 1. Хани, команда и правила работы", stage: "Вводный курс", city: "Алматы", branch: "Dostyk", avgTimeHours: 3.4, entrants: 18, completed: 16, conversion: 89 },
+        { id: "dostyk-live-check", title: "Живая ролевая проверка", stage: "Финал", city: "Алматы", branch: "Dostyk", avgTimeHours: 1.1, entrants: 9, completed: 8, conversion: 89 },
+        { id: "astana-course-1", title: "Курс 1. Хани, команда и правила работы", stage: "Вводный курс", city: "Астана", branch: "Khan Shatyr", avgTimeHours: 3.6, entrants: 22, completed: 19, conversion: 86 },
+        { id: "astana-course-2", title: "Курс 2. Сервис и общение с гостем", stage: "Сервис", city: "Астана", branch: "Khan Shatyr", avgTimeHours: 4.8, entrants: 19, completed: 15, conversion: 79 }
+      ],
+      alerts: [
+        {
+          id: "alert-daniyar",
+          severity: "critical",
+          status: "new",
+          title: "Исчерпаны обе попытки тестирования",
+          personId: "daniyar",
+          personType: "trainees",
+          city: "Алматы",
+          branch: "Mega",
+          manager: "Аружан",
+          managerLogin: "admin.aruzhan",
+          reason: "Стажёр не сдал две доступные попытки по блоку «Работа с отказом».",
+          panelChannel: "Закреплено в панели управляющего",
+          pushChannel: "Push управляющему Аружан по точке Mega",
+          createdAt: "сегодня, 10:42"
+        },
+        {
+          id: "alert-roman",
+          severity: "critical",
+          status: "new",
+          title: "Критичные ошибки по составам",
+          personId: "roman",
+          personType: "employees",
+          city: "Шымкент",
+          branch: "Shymkent Plaza",
+          manager: "Сабина",
+          managerLogin: "admin.sabina",
+          reason: "Сотрудник не сдал назначенный блок по составам и аллергенам после двух попыток.",
+          panelChannel: "Закреплено в панели управляющего",
+          pushChannel: "Push управляющему Сабина по точке Shymkent Plaza",
+          createdAt: "сегодня, 11:18"
+        },
+        {
+          id: "alert-sasha-final",
+          severity: "warning",
+          status: "new",
+          title: "Стажёр дошёл до итоговой живой проверки",
+          personId: "sasha",
+          personType: "trainees",
+          city: "Алматы",
+          branch: "Forum",
+          manager: "Илья",
+          managerLogin: "admin.ilya",
+          reason: "Стажёр завершил онлайн-курсы и перешёл на итоговый курс «Живая ролевая проверка». Нужно принять проверку вживую.",
+          panelChannel: "Закреплено в панели управляющего",
+          pushChannel: "Push управляющему Илья по точке Forum",
+          createdAt: "сегодня, 12:06"
+        },
+        {
+          id: "alert-aibek-final",
+          severity: "warning",
+          status: "new",
+          title: "Стажёр завершил все онлайн-этапы",
+          personId: "aibek",
+          personType: "trainees",
+          city: "Алматы",
+          branch: "Абая",
+          manager: "Мадина",
+          managerLogin: "admin.madina",
+          reason: "Стажёр завершил все назначенные курсы и перешёл на итоговый этап. Нужно провести живую проверку.",
+          panelChannel: "Закреплено в панели управляющего",
+          pushChannel: "Push управляющему Мадина по точке Абая",
+          createdAt: "сегодня, 12:12"
+        },
+        {
+          id: "alert-timur-assigned",
+          severity: "warning",
+          status: "new",
+          title: "Система направила сотрудника на дообучение",
+          personId: "timur",
+          personType: "employees",
+          city: "Алматы",
+          branch: "Абая",
+          manager: "Мадина",
+          managerLogin: "admin.madina",
+          reason: "Система оповестила, что сотрудника нужно отправить на дообучение по блоку «Конкретные связки».",
+          panelChannel: "Закреплено в панели управляющего",
+          pushChannel: "Push управляющему Мадина по точке Абая",
+          createdAt: "сегодня, 12:20"
+        },
+        {
+          id: "alert-svetlana-final",
+          severity: "warning",
+          status: "new",
+          title: "Сотрудник завершил все назначенные этапы",
+          personId: "svetlana",
+          personType: "employees",
+          city: "Алматы",
+          branch: "Абая",
+          manager: "Мадина",
+          managerLogin: "admin.madina",
+          reason: "Сотрудник завершил все этапы назначенного обучения. Нужно открыть карточку и проверить итоговый результат.",
+          panelChannel: "Закреплено в панели управляющего",
+          pushChannel: "Push управляющему Мадина по точке Абая",
+          createdAt: "сегодня, 12:34"
+        },
+        {
+          id: "alert-aliya-completed",
+          severity: "warning",
+          status: "new",
+          title: "Сотрудник завершил назначенное дообучение",
+          personId: "aliya",
+          personType: "employees",
+          city: "Астана",
+          branch: "Khan Shatyr",
+          manager: "Дана",
+          managerLogin: "admin.dana",
+          reason: "Сотрудник прошёл назначенный блок по сложным ситуациям. Управляющему нужно проверить результат на смене.",
+          panelChannel: "Закреплено в панели управляющего",
+          pushChannel: "Push управляющему Дана по точке Khan Shatyr",
+          createdAt: "вчера, 18:05"
+        }
+      ],
+      trainees: [
+        {
+          id: "alina",
+          name: "Алина Сагадиева",
+          phone: "+7 701 111 22 33",
+          role: "кассир",
+          city: "Алматы",
+          branch: "Абая",
+          admin: "Мадина",
+          start: "21 мая 2026",
+          course: "Курс 4. Продажи и допродажи",
+          block: "Блок 2. Конкретные связки",
+          progress: 78,
+          status: "в обучении",
+          statusType: "study",
+          attempts: "0/2",
+          courses: [
+            ["Курс 1. Хани, команда и правила работы", "завершён", "92%", null, [
+              { title: "Блок 1. Добро пожаловать в Hani", status: "завершён", result: "95%" },
+              { title: "Блок 2. Базовые правила работы", status: "завершён", result: "90%" },
+              { title: "Блок 3. Команда и роли", status: "завершён", result: "92%" }
+            ]],
+            ["Курс 2. Сервис и общение с гостем", "завершён", "86%", null, [
+              { title: "Блок 1. Стандарт общения", status: "завершён", result: "88%" },
+              { title: "Блок 2. Принятие заказа", status: "завершён", result: "84%" },
+              { title: "Блок 3. Сложные ситуации", status: "завершён", result: "86%" }
+            ]],
+            ["Курс 3. Продукт, меню и составы", "завершён", "82%", null, [
+              { title: "Блок 1. Базовые категории меню", status: "завершён", result: "85%" },
+              { title: "Блок 2. Составы и уточнения", status: "завершён", result: "80%" },
+              { title: "Блок 3. Аллергены и замены", status: "завершён", result: "82%" }
+            ]],
+            ["Курс 4. Продажи и допродажи", "в процессе", "60%", null, [
+              { title: "Блок 1. Мягкая допродажа", status: "завершён", result: "76%" },
+              { title: "Блок 2. Конкретные связки", status: "в процессе", result: "0/2 попытки" }
+            ]]
+          ],
+          wrong: [
+            {
+              course: "Курс 3. Продукт, меню и составы",
+              block: "Блок 2. Составы и уточнения",
+              question: "Что делать, если гость спрашивает состав, а ты не уверен?",
+              trainee: "Ответить примерно по памяти",
+              correct: "Сказать: сейчас уточню, и найти точный ответ",
+              critical: true
+            }
+          ]
+        },
+        {
+          id: "aibek",
+          name: "Айбек Тулеу",
+          phone: "+7 701 202 45 67",
+          role: "кассир",
+          city: "Алматы",
+          branch: "Абая",
+          admin: "Мадина",
+          start: "18 мая 2026",
+          course: "Итоговый этап",
+          block: "Живая ролевая проверка",
+          progress: 100,
+          status: "итоговый этап",
+          statusType: "final",
+          attempts: "0/2",
+          courses: [
+            ["Курс 1. Хани, команда и правила работы", "завершён", "94%", null, [
+              { title: "Блок 1. Добро пожаловать в Hani", status: "завершён", result: "96%" },
+              { title: "Блок 2. Базовые правила работы", status: "завершён", result: "93%" },
+              { title: "Блок 3. Команда и роли", status: "завершён", result: "94%" }
+            ]],
+            ["Курс 2. Сервис и общение с гостем", "завершён", "90%", null, [
+              { title: "Блок 1. Стандарт общения", status: "завершён", result: "91%" },
+              { title: "Блок 2. Работа с заказом", status: "завершён", result: "89%" },
+              { title: "Блок 3. Работа с отказом", status: "завершён", result: "90%" }
+            ]],
+            ["Курс 3. Продукт, меню и составы", "завершён", "87%", null, [
+              { title: "Блок 1. Категории меню", status: "завершён", result: "88%" },
+              { title: "Блок 2. Составы", status: "завершён", result: "86%" },
+              { title: "Блок 3. Напитки и десерты", status: "завершён", result: "87%" }
+            ]],
+            ["Курс 4. Продажи и допродажи", "завершён", "91%", null, [
+              { title: "Блок 1. Мягкая допродажа", status: "завершён", result: "92%" },
+              { title: "Блок 2. Конкретные связки", status: "завершён", result: "90%" }
+            ]],
+            ["Курс 5. Живая ролевая проверка", "в процессе", "итоговый курс", "final", [
+              { title: "Блок 1. Итоговая проверка с администратором", status: "в процессе", result: "ожидает живой проверки" }
+            ]]
+          ],
+          wrong: [
+            {
+              course: "Курс 5. Живая ролевая проверка",
+              block: "Блок 1. Итоговая проверка",
+              question: "Что должен показать стажёр на итоговой живой проверке?",
+              trainee: "Только пройти тест",
+              correct: "Показать знание материала и корректное поведение в рабочей ситуации",
+              critical: true
+            }
+          ]
+        },
+        {
+          id: "daniyar",
+          name: "Данияр Ким",
+          phone: "+7 777 450 19 20",
+          role: "официант",
+          city: "Алматы",
+          branch: "Mega",
+          admin: "Аружан",
+          start: "20 мая 2026",
+          course: "Курс 2. Сервис и общение с гостем",
+          block: "Блок 3. Работа с отказом",
+          progress: 36,
+          status: "исчерпаны попытки",
+          statusType: "danger",
+          attempts: "2/2",
+          attemptReason: "Стажёр вышел из тестирования до завершения. Попытка засчитана как использованная.",
+          attemptReasonShort: "выход из тестирования",
+          courses: [
+            ["Курс 1. Хани, команда и правила работы", "завершён", "76%", null, [
+              { title: "Блок 1. Добро пожаловать в Hani", status: "завершён", result: "80%" },
+              { title: "Блок 2. Базовые правила работы", status: "завершён", result: "74%" },
+              { title: "Блок 3. Команда и роли", status: "завершён", result: "78%" }
+            ]],
+            ["Курс 2. Сервис и общение с гостем", "нужен разбор", "58%", null, [
+              { title: "Блок 1. Стандарт общения", status: "завершён", result: "72%" },
+              { title: "Блок 2. Принятие заказа", status: "завершён", result: "66%" },
+              { title: "Блок 3. Работа с отказом", status: "исчерпаны попытки", result: "2/2 попытки" }
+            ]]
+          ],
+          wrong: [
+            {
+              course: "Курс 2. Сервис и общение с гостем",
+              block: "Блок 3. Работа с отказом",
+              question: "Как ответить, если гость резко отказался от допродажи?",
+              trainee: "Больше ничего не предлагать и молча закрыть заказ",
+              correct: "Спокойно принять отказ, подтвердить основной заказ и доброжелательно завершить контакт",
+              critical: true
+            },
+            {
+              course: "Курс 1. Хани, команда и правила работы",
+              block: "Блок 2. Базовые правила работы",
+              question: "Что делает сотрудник, если не понял задачу?",
+              trainee: "Ждёт, пока администратор сам объяснит",
+              correct: "Уточняет задачу сразу и фиксирует, что нужно сделать",
+              critical: false
+            }
+          ]
+        },
+        {
+          id: "mira",
+          name: "Мира Нурлан",
+          phone: "+7 708 333 44 55",
+          role: "кассир",
+          city: "Алматы",
+          branch: "Dostyk",
+          admin: "Мадина",
+          start: "14 мая 2026",
+          course: "Курс 4. Продажи и допродажи",
+          block: "Блок 1. Мягкая допродажа",
+          progress: 84,
+          status: "в обучении",
+          statusType: "study",
+          attempts: "1/2",
+          courses: [
+            ["Курс 1. Хани, команда и правила работы", "завершён", "90%", null, [
+              { title: "Блок 1. Добро пожаловать в Hani", status: "завершён", result: "91%" },
+              { title: "Блок 2. Базовые правила работы", status: "завершён", result: "89%" }
+            ]],
+            ["Курс 2. Сервис и общение с гостем", "завершён", "88%", null, [
+              { title: "Блок 1. Стандарт общения", status: "завершён", result: "90%" },
+              { title: "Блок 2. Сложные ситуации", status: "завершён", result: "86%" }
+            ]],
+            ["Курс 3. Продукт, меню и составы", "завершён", "84%", null, [
+              { title: "Блок 1. Категории меню", status: "завершён", result: "85%" },
+              { title: "Блок 2. Составы", status: "завершён", result: "83%" }
+            ]],
+            ["Курс 4. Продажи и допродажи", "в процессе", "повтор", null, [
+              { title: "Блок 1. Мягкая допродажа", status: "в процессе", result: "1/2 попытки" }
+            ]]
+          ],
+          wrong: [
+            {
+              course: "Курс 4. Продажи и допродажи",
+              block: "Блок 1. Мягкая допродажа",
+              question: "Когда лучше предлагать конкретную связку?",
+              trainee: "В самом конце, когда гость уже оплатил",
+              correct: "До оплаты, когда понятен основной заказ",
+              critical: false
+            }
+          ]
+        },
+        {
+          id: "sasha",
+          name: "Саша Петрова",
+          phone: "+7 700 808 70 70",
+          role: "официант",
+          city: "Алматы",
+          branch: "Forum",
+          admin: "Илья",
+          start: "19 мая 2026",
+          course: "Курс 5. Живая ролевая проверка",
+          block: "Блок 1. Итоговая проверка",
+          progress: 92,
+          status: "итоговый этап",
+          statusType: "final",
+          attempts: "0/2",
+          courses: [
+            ["Курс 1. Хани, команда и правила работы", "завершён", "94%", null, [
+              { title: "Блок 1. Добро пожаловать в Hani", status: "завершён", result: "95%" },
+              { title: "Блок 2. Базовые правила работы", status: "завершён", result: "93%" }
+            ]],
+            ["Курс 2. Сервис и общение с гостем", "завершён", "91%", null, [
+              { title: "Блок 1. Стандарт общения", status: "завершён", result: "92%" },
+              { title: "Блок 2. Сложные ситуации", status: "завершён", result: "90%" }
+            ]],
+            ["Курс 3. Продукт, меню и составы", "завершён", "88%", null, [
+              { title: "Блок 1. Категории меню", status: "завершён", result: "89%" },
+              { title: "Блок 2. Составы", status: "завершён", result: "87%" }
+            ]],
+            ["Курс 4. Продажи и допродажи", "завершён", "86%", null, [
+              { title: "Блок 1. Мягкая допродажа", status: "завершён", result: "88%" },
+              { title: "Блок 2. Конкретные связки", status: "завершён", result: "84%" }
+            ]],
+            ["Курс 5. Живая ролевая проверка", "в процессе", "итоговый курс", "final", [
+              { title: "Блок 1. Итоговая проверка с администратором", status: "в процессе", result: "ожидает живой проверки" }
+            ]]
+          ],
+          wrong: [
+            {
+              course: "Курс 2. Сервис и общение с гостем",
+              block: "Блок 1. Стандарт общения",
+              question: "Что проверить на финальной живой проверке?",
+              trainee: "Только знание меню",
+              correct: "Меню, сервисную фразу, реакцию на отказ и завершение контакта",
+              critical: false
+            }
+          ]
+        }
+      ],
+      employees: [
+        {
+          id: "timur",
+          name: "Тимур Жаксыбаев",
+          phone: "+7 701 555 10 10",
+          role: "кассир",
+          city: "Алматы",
+          branch: "Абая",
+          admin: "Мадина",
+          start: "28 мая 2026",
+          course: "Курс 4. Продажи и допродажи",
+          block: "Блок 2. Конкретные связки",
+          progress: 42,
+          status: "в обучении",
+          statusType: "study",
+          attempts: "1/2",
+          reason: "Регулярно не предлагает конкретную связку к заказу. Назначены выборочные блоки из двух курсов.",
+          courses: [
+            ["Курс 4. Продажи и допродажи", "в процессе", "назначены блоки 1 и 2", null, [
+              { title: "Блок 1. Мягкая допродажа", status: "завершён", result: "88%" },
+              { title: "Блок 2. Конкретные связки", status: "в процессе", result: "1/2 попытки" }
+            ]],
+            ["Курс 3. Продукт, меню и составы", "назначено", "выборочно: блок 1", null, [
+              { title: "Блок 1. Базовые категории меню", status: "назначено", result: "ещё не начат" }
+            ]]
+          ],
+          wrong: [
+            {
+              course: "Курс 4. Продажи и допродажи",
+              block: "Блок 2. Конкретные связки",
+              question: "Что лучше сказать вместо «что-нибудь ещё?»",
+              trainee: "Что-нибудь ещё будете?",
+              correct: "Предложить конкретную позицию к заказу",
+              critical: false
+            }
+          ]
+        },
+        {
+          id: "svetlana",
+          name: "Светлана Александровна",
+          phone: "+7 707 919 22 11",
+          role: "кассир",
+          city: "Алматы",
+          branch: "Абая",
+          admin: "Мадина",
+          start: "2 июня 2026",
+          course: "Завершено",
+          block: "Все назначенные блоки пройдены",
+          progress: 100,
+          status: "обучение завершено",
+          statusType: "done",
+          attempts: "0/2",
+          reason: "Сотрудник завершил все курсы и блоки, которые были назначены на дообучение.",
+          courses: [
+            ["Курс 4. Продажи и допродажи", "завершён", "назначенные блоки завершены", null, [
+              { title: "Блок 1. Мягкая допродажа", status: "завершён", result: "92%" },
+              { title: "Блок 2. Конкретные связки", status: "завершён", result: "95%" }
+            ]],
+            ["Курс 3. Продукт, меню и составы", "завершён", "выборочный блок завершён", null, [
+              { title: "Блок 1. Базовые категории меню", status: "завершён", result: "90%" }
+            ]]
+          ],
+          wrong: []
+        },
+        {
+          id: "aliya",
+          name: "Алия Муратова",
+          phone: "+7 707 222 66 77",
+          role: "официант",
+          city: "Астана",
+          branch: "Khan Shatyr",
+          admin: "Дана",
+          start: "30 мая 2026",
+          course: "Курс 2. Сервис и общение с гостем",
+          block: "Блок 3. Сложные ситуации",
+          progress: 100,
+          status: "обучение завершено",
+          statusType: "done",
+          attempts: "1/2",
+          reason: "Управляющий направил после повторяющихся жалоб по коммуникации.",
+          courses: [
+            ["Курс 2. Сервис и общение с гостем", "завершён", "повтор"]
+          ],
+          wrong: [
+            {
+              course: "Курс 2. Сервис и общение с гостем",
+              block: "Блок 3. Сложные ситуации",
+              question: "Что делать при жалобе гостя?",
+              trainee: "Сказать, что это не моя зона",
+              correct: "Признать ситуацию, уточнить детали и подключить администратора",
+              critical: true
+            }
+          ]
+        },
+        {
+          id: "roman",
+          name: "Роман Исаев",
+          phone: "+7 775 900 40 40",
+          role: "бариста",
+          city: "Шымкент",
+          branch: "Shymkent Plaza",
+          admin: "Сабина",
+          start: "1 июня 2026",
+          course: "Курс 3. Продукт, меню и составы",
+          block: "Блок 3. Составы и аллергены",
+          progress: 64,
+          status: "исчерпаны попытки",
+          statusType: "danger",
+          attempts: "2/2",
+          reason: "Ошибки в ответах по составам и аллергенам.",
+          attemptReason: "Сотрудник не сдал назначенный блок после двух попыток.",
+          attemptReasonShort: "не сдал блок",
+          courses: [
+            ["Курс 3. Продукт, меню и составы", "нужен разбор", "54%"]
+          ],
+          wrong: [
+            {
+              course: "Курс 3. Продукт, меню и составы",
+              block: "Блок 3. Составы и аллергены",
+              question: "Что делать, если не уверен в составе?",
+              trainee: "Ответить по памяти",
+              correct: "Уточнить точный состав перед ответом гостю",
+              critical: true
+            }
+          ]
+        }
+      ],
+      accounts: [
+        { id: "acc-super-roma", type: "Супер-администратор", name: "Рома 4SELL", login: "super.roma", city: "Все города", branch: "Все точки", access: "вся сеть" },
+        { id: "acc-admin-madina", type: "Администратор", name: "Мадина Омарова", login: "admin.madina", city: "Алматы", branch: "Абая + Dostyk", access: "2 точки", points: [{ city: "Алматы", branch: "Абая" }, { city: "Алматы", branch: "Dostyk" }] },
+        { id: "acc-admin-aruzhan", type: "Администратор", name: "Аружан Тлеу", login: "admin.aruzhan", city: "Алматы", branch: "Mega", access: "филиал", points: [{ city: "Алматы", branch: "Mega" }] },
+        { id: "acc-admin-ilya", type: "Администратор", name: "Илья Ковалёв", login: "admin.ilya", city: "Алматы", branch: "Forum", access: "филиал", points: [{ city: "Алматы", branch: "Forum" }] },
+        { id: "acc-admin-dana", type: "Администратор", name: "Дана Серик", login: "admin.dana", city: "Астана", branch: "Khan Shatyr", access: "филиал", points: [{ city: "Астана", branch: "Khan Shatyr" }] },
+        { id: "acc-admin-sabina", type: "Администратор", name: "Сабина Нур", login: "admin.sabina", city: "Шымкент", branch: "Shymkent Plaza", access: "филиал", points: [{ city: "Шымкент", branch: "Shymkent Plaza" }] },
+        { id: "acc-alina", type: "Стажёр", name: "Алина Сагадиева", login: "hani.alina", city: "Алматы", branch: "Абая", access: "обучение" },
+        { id: "acc-timur", type: "Сотрудник", name: "Тимур Жаксыбаев", login: "hani.timur", city: "Алматы", branch: "Абая", access: "переобучение" }
+      ],
+      retakes: [
+        {
+          id: "r1",
+          traineeId: "mira",
+          course: "Курс 4. Продажи и допродажи",
+          block: "Блок 1. Мягкая допродажа",
+          assignedBy: "4SELL",
+          assignedAt: "21 мая 2026",
+          status: "назначена",
+          result: "ожидает прохождения"
+        }
+      ],
+      content: {
+        view: "courses",
+        selectedCourseId: "cashier-course-1",
+        selectedBlockId: "cashier-course-1-block-2",
+        courses: [
+          {
+            id: "cashier-course-1",
+            program: "Стажёр-кассир",
+            title: "Курс 1. Хани, команда и правила работы",
+            description: "Вводный курс для стажёра: кто такие Hani, как устроена команда и какие базовые правила важно соблюдать с первого дня.",
+            active: true,
+            final: false,
+            blocks: [
+              {
+                id: "cashier-course-1-block-1",
+                title: "Блок 1. Добро пожаловать в Hani",
+                description: "Короткое приветствие, кто такие Hani, принципы компании и домашний сервис.",
+                active: true,
+                passScore: 70,
+                video: "Приветственное видео",
+                text: "Hani отличается живым человеческим контактом, заботой, скоростью и аккуратностью.",
+                checklist: "Поздороваться, помочь, объяснить, предложить, попрощаться.",
+                questions: [
+                  {
+                    text: "Чем сотрудник Hani должен отличаться от автомата?",
+                    critical: true,
+                    answers: [
+                      { text: "Он здоровается, помогает, объясняет и завершает контакт", correct: true },
+                      { text: "Он только принимает оплату", correct: false }
+                    ]
+                  }
+                ]
+              },
+              {
+                id: "cashier-course-1-block-2",
+                title: "Блок 2. Базовые правила работы",
+                description: "Когда приходить на смену, внешний вид, бейджик, чистота рабочей зоны и кому писать при опоздании.",
+                active: true,
+                passScore: 70,
+                video: "Короткий кружок: как проходит рабочий день",
+                text: "Когда приходить на смену, внешний вид, бейджик, чистота рабочей зоны, кому писать при опоздании.",
+                checklist: "Пришёл вовремя, привёл внешний вид в порядок, проверил рабочую зону, уточнил задачу на день.",
+                questions: [
+                  {
+                    text: "Что делать, если ты не понял задачу администратора?",
+                    critical: true,
+                    answers: [
+                      { text: "Сразу уточнить задачу и убедиться, что понял правильно", correct: true },
+                      { text: "Подождать, пока администратор сам заметит", correct: false },
+                      { text: "Сделать как получится", correct: false },
+                      { text: "Спросить у гостя, что делать", correct: false }
+                    ]
+                  },
+                  {
+                    text: "Что должно быть готово перед началом смены?",
+                    critical: false,
+                    answers: [
+                      { text: "Внешний вид", correct: true },
+                      { text: "Бейджик", correct: true },
+                      { text: "Рабочая зона", correct: true },
+                      { text: "Личный телефон в руках", correct: false }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            id: "waiter-course-1",
+            program: "Стажёр-официант",
+            title: "Курс 1. Сервис в зале",
+            description: "Базовый курс для официанта: контакт с гостем, принятие заказа, подача и завершение обслуживания.",
+            active: true,
+            final: false,
+            blocks: []
+          },
+          {
+            id: "admin-course-1",
+            program: "Администратор",
+            title: "Курс 1. Работа с обучением",
+            description: "Как администратору смотреть результаты стажёра, назначать обучение и принимать решение по попыткам.",
+            active: true,
+            final: false,
+            blocks: []
+          },
+          {
+            id: "cashier-final-course",
+            program: "Стажёр-кассир",
+            title: "Курс 5. Живая ролевая проверка",
+            description: "Итоговый курс для стажёра: администратор проверяет знания и поведение вживую.",
+            active: true,
+            final: true,
+            blocks: []
+          }
+        ]
+      }
+    };
+
+    const app = document.getElementById("app");
+    const desktopApp = document.getElementById("desktopApp");
+    const title = document.getElementById("screenTitle");
+    const desktopTitle = document.getElementById("desktopTitle");
+    const modal = document.getElementById("modal");
+    const modalCard = document.getElementById("modalCard");
+    const toast = document.getElementById("toast");
+    const retakeCourseCatalog = [
+      {
+        id: "course-1",
+        title: "Курс 1. Хани, команда и правила работы",
+        blocks: ["Блок 1. Добро пожаловать в Hani", "Блок 2. Базовые правила работы", "Блок 3. Готовность к смене"]
+      },
+      {
+        id: "course-2",
+        title: "Курс 2. Сервис и общение с гостем",
+        blocks: ["Блок 1. Стандарт общения", "Блок 2. Работа с отказом"]
+      },
+      {
+        id: "course-3",
+        title: "Курс 3. Продукт, меню и составы",
+        blocks: ["Блок 1. Знание меню", "Блок 2. Составы и уточнения"]
+      },
+      {
+        id: "course-4",
+        title: "Курс 4. Продажи и допродажи",
+        blocks: ["Блок 1. Мягкая допродажа", "Блок 2. Конкретные связки", "Блок 3. Работа с отказом"]
+      }
+    ];
+    let retakeDraft = [];
+    let retakeDraftCounter = 0;
+
+    function statusClass(type) {
+      if (type === "danger") return "status danger";
+      if (type === "retake") return "status retake";
+      if (type === "final") return "status retake";
+      if (type === "done") return "status done";
+      return "status study";
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function viewTitle() {
+      const names = {
+        trainees: "Стажёры",
+        finalStages: "Итоговые этапы",
+        employees: "Сотрудники",
+        accounts: "Аккаунты",
+        analytics: "Воронка",
+        alerts: "Алерты",
+        trainee: state.selectedPersonType === "employees" ? "Карточка сотрудника" : "Карточка стажёра",
+        content: "Контент обучения",
+        settings: "Настройки"
+      };
+      return names[state.view] || "Админка";
+    }
+
+    function setView(view) {
+      state.view = view;
+      if (view !== "trainee") {
+        state.selectedTraineeId = null;
+        state.selectedReturnView = view;
+      }
+      render();
+    }
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2200);
+    }
+
+    function openModal(html) {
+      modalCard.innerHTML = html;
+      modal.classList.add("active");
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal() {
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
+      modalCard.innerHTML = "";
+    }
+
+    function setAppHtml(html) {
+      app.innerHTML = html;
+      desktopApp.innerHTML = html;
+    }
+
+    function allCities() {
+      return Object.keys(state.branchesByCity);
+    }
+
+    function allBranchPoints() {
+      return Object.entries(state.branchesByCity).flatMap(([city, branches]) => (
+        branches.map((branch) => ({ city, branch }))
+      ));
+    }
+
+    function branchesForCity(city) {
+      if (city === "all") {
+        return [...new Set(Object.values(state.branchesByCity).flat())];
+      }
+      return state.branchesByCity[city] || [];
+    }
+
+    function cityOptions(selected, includeAll = true) {
+      return `
+        ${includeAll ? `<option value="all" ${selected === "all" ? "selected" : ""}>Все города</option>` : ""}
+        ${allCities().map((city) => `<option value="${city}" ${city === selected ? "selected" : ""}>${city}</option>`).join("")}
+      `;
+    }
+
+    function branchOptions(city, selected) {
+      return `
+        <option value="all" ${selected === "all" ? "selected" : ""}>Все точки</option>
+        ${branchesForCity(city).map((branch) => `<option value="${branch}" ${branch === selected ? "selected" : ""}>${branch}</option>`).join("")}
+      `;
+    }
+
+    function accountPoints(account) {
+      if (isSuperAdmin(account)) return allBranchPoints();
+      if (account?.points?.length) return account.points;
+      if (account?.city && account?.branch && account.city !== "Все города" && account.branch !== "Все точки") {
+        return [{ city: account.city, branch: account.branch }];
+      }
+      return [];
+    }
+
+    function pointLabel(point) {
+      return `${point.city} / ${point.branch}`;
+    }
+
+    function pointAllowedForViewer(item, viewer = viewerAccount()) {
+      if (isSuperAdmin(viewer)) return true;
+      return accountPoints(viewer).some((point) => point.city === item.city && point.branch === item.branch);
+    }
+
+    function citiesForPoints(points) {
+      return [...new Set(points.map((point) => point.city))];
+    }
+
+    function branchesForPoints(points, city) {
+      return [...new Set(points.filter((point) => city === "all" || point.city === city).map((point) => point.branch))];
+    }
+
+    function cityOptionsForPoints(selected, points) {
+      return `
+        <option value="all" ${selected === "all" ? "selected" : ""}>Все доступные города</option>
+        ${citiesForPoints(points).map((city) => `<option value="${city}" ${city === selected ? "selected" : ""}>${city}</option>`).join("")}
+      `;
+    }
+
+    function branchOptionsForPoints(city, selected, points) {
+      return `
+        <option value="all" ${selected === "all" ? "selected" : ""}>Все доступные точки</option>
+        ${branchesForPoints(points, city).map((branch) => `<option value="${branch}" ${branch === selected ? "selected" : ""}>${branch}</option>`).join("")}
+      `;
+    }
+
+    function peopleSource(kind) {
+      return kind === "employees" ? state.employees : state.trainees;
+    }
+
+    function personTypeLabel(kind) {
+      return kind === "employees" ? "сотрудник" : "стажёр";
+    }
+
+    function personById(id) {
+      return state.trainees.find((item) => item.id === id) || state.employees.find((item) => item.id === id);
+    }
+
+    function traineeById(id) {
+      return personById(id);
+    }
+
+    function personKindById(id) {
+      if (state.employees.some((item) => item.id === id)) return "employees";
+      return "trainees";
+    }
+
+    function parseAttempts(value) {
+      const [usedRaw, totalRaw] = String(value || "0/2").split("/");
+      const used = Number(usedRaw) || 0;
+      const total = Number(totalRaw) || state.settings.attempts || 2;
+      return { used, total, left: Math.max(0, total - used) };
+    }
+
+    function attemptsLeftClass(person) {
+      const attempts = parseAttempts(person.attempts);
+      if (attempts.left <= 0) return "attempts-left empty";
+      if (attempts.left === 1) return "attempts-left low";
+      return "attempts-left";
+    }
+
+    function shortLearningPoint(value, label) {
+      const match = String(value || "").match(new RegExp(`${label}\\s*(\\d+)`, "i"));
+      return match ? `${label} ${match[1]}` : String(value || "не указано");
+    }
+
+    function isCompletedLearning(person) {
+      return person.status === "обучение завершено";
+    }
+
+    function isFinalStageStatus(person) {
+      return person.status === "итоговый этап";
+    }
+
+    function tableLearningStage(person) {
+      if (isCompletedLearning(person)) return "Завершено";
+      if (isFinalStage(person)) return "Итоговый этап";
+      return `${shortLearningPoint(person.course, "Курс")}, ${shortLearningPoint(person.block, "Блок")}`;
+    }
+
+    function tableAttempts(person) {
+      if (isCompletedLearning(person)) {
+        return `<span class="attempts-left">—</span><div class="table-sub">все назначенные этапы пройдены</div>`;
+      }
+      if (isFinalStage(person)) {
+        return `<span class="attempts-left">—</span><div class="table-sub">реальная проверка</div>`;
+      }
+      const attempts = parseAttempts(person.attempts);
+      return `<span class="${attemptsLeftClass(person)}">${attempts.left} из ${attempts.total}</span><div class="table-sub">по текущему блоку</div>`;
+    }
+
+    function cardAttemptsLabel(person) {
+      if (isCompletedLearning(person)) return "не требуется";
+      if (isFinalStage(person)) return "живая проверка";
+      return person.attempts;
+    }
+
+    function filteredPeople(kind) {
+      const filter = state.filters[kind] || state.filters.trainees;
+      const viewer = viewerAccount();
+      return peopleSource(kind).filter((person) => {
+        const accessOk = pointAllowedForViewer(person, viewer);
+        const cityOk = filter.city === "all" || person.city === filter.city;
+        const branchOk = filter.branch === "all" || person.branch === filter.branch;
+        const statusOk = filter.status === "all" || person.status === filter.status;
+        return accessOk && cityOk && branchOk && statusOk;
+      });
+    }
+
+    function filteredFinalStageTrainees() {
+      const filter = state.filters.finalStages;
+      const viewer = viewerAccount();
+      return state.trainees.filter((person) => {
+        const accessOk = pointAllowedForViewer(person, viewer);
+        const cityOk = filter.city === "all" || person.city === filter.city;
+        const branchOk = filter.branch === "all" || person.branch === filter.branch;
+        return accessOk && cityOk && branchOk && isFinalStageStatus(person);
+      });
+    }
+
+    function filteredAccounts() {
+      const filter = state.filters.accounts;
+      return state.accounts.filter((account) => {
+        const cityOk = filter.city === "all" || account.city === filter.city;
+        const branchOk = filter.branch === "all" || account.branch === filter.branch;
+        const typeOk = filter.status === "all" || account.type === filter.status;
+        return cityOk && branchOk && typeOk;
+      });
+    }
+
+    function viewerAccount() {
+      return state.accounts.find((account) => account.id === state.viewerAccountId) || state.accounts[0];
+    }
+
+    function isSuperAdmin(account) {
+      return account?.type === "Супер-администратор";
+    }
+
+    function renderNetworkFilters(scope) {
+      const filter = state.filters[scope];
+      return `
+        <div class="network-filters">
+          <div class="filter-field">
+            <label>Город</label>
+            <select data-network-filter="${scope}" data-filter-name="city">
+              ${cityOptions(filter.city)}
+            </select>
+          </div>
+          <div class="filter-field">
+            <label>Точка / филиал</label>
+            <select data-network-filter="${scope}" data-filter-name="branch">
+              ${branchOptions(filter.city, filter.branch)}
+            </select>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderScopedNetworkFilters(scope) {
+      const viewer = viewerAccount();
+      if (isSuperAdmin(viewer)) return renderNetworkFilters(scope);
+      const filter = state.filters[scope];
+      const points = accountPoints(viewer);
+      if (points.length <= 1) return "";
+      const cities = citiesForPoints(points);
+      if (cities.length === 1) {
+        return `
+          <div class="network-filters">
+            <div class="filter-field">
+              <label>Точка / филиал</label>
+              <select data-network-filter="${scope}" data-filter-name="branch">
+                ${branchOptionsForPoints("all", filter.branch, points)}
+              </select>
+            </div>
+          </div>
+        `;
+      }
+      return `
+        <div class="network-filters">
+          <div class="filter-field">
+            <label>Город</label>
+            <select data-network-filter="${scope}" data-filter-name="city">
+              ${cityOptionsForPoints(filter.city, points)}
+            </select>
+          </div>
+          <div class="filter-field">
+            <label>Точка / филиал</label>
+            <select data-network-filter="${scope}" data-filter-name="branch">
+              ${branchOptionsForPoints(filter.city, filter.branch, points)}
+            </select>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAccessControls(scope) {
+      return renderScopedNetworkFilters(scope);
+    }
+
+    function isFinalStage(person) {
+      return isFinalStageStatus(person);
+    }
+
+    function renderMetricGrid(people = state.trainees) {
+      const active = people.filter((item) => item.status === "в обучении").length;
+      const exhausted = people.filter((item) => item.status === "исчерпаны попытки").length;
+      const completed = people.filter((item) => item.status === "обучение завершено").length;
+      const finalCourse = people.filter(isFinalStageStatus).length;
+      return `
+        <div class="metric-grid">
+          <div class="metric"><b>${active}</b><span>в обучении</span></div>
+          <div class="metric"><b>${exhausted}</b><span>исчерпаны попытки</span></div>
+          <div class="metric"><b>${completed}</b><span>обучение завершено</span></div>
+          <div class="metric"><b>${finalCourse}</b><span>итоговый этап</span></div>
+        </div>
+      `;
+    }
+
+    function renderPeopleTable(kind, list) {
+      return `
+        <div class="table-wrap">
+          <table class="people-table">
+            <thead>
+              <tr>
+                <th>ФИО</th>
+                <th>Город / точка</th>
+                <th>Прогресс</th>
+                <th>Курс и блок</th>
+                <th>Осталось попыток</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.length ? list.map((person) => {
+                return `
+                  <tr>
+                    <td data-label="ФИО">
+                      <div class="person-cell">
+                        <button class="table-link" data-action="open-person" data-type="${kind}" data-return-view="${state.view === "finalStages" ? "finalStages" : kind}" data-id="${person.id}">${escapeHtml(person.name)}</button>
+                        <span>${escapeHtml(person.role)} · ${escapeHtml(person.phone)}</span>
+                      </div>
+                    </td>
+                    <td data-label="Город / точка">
+                      <strong>${escapeHtml(person.city)}</strong>
+                      <div class="table-sub">${escapeHtml(person.branch)}</div>
+                    </td>
+                    <td data-label="Прогресс">
+                      <div class="table-progress">
+                        <b>${person.progress}%</b>
+                      </div>
+                    </td>
+                    <td data-label="Курс и блок">
+                      <strong>${escapeHtml(tableLearningStage(person))}</strong>
+                    </td>
+                    <td data-label="Осталось попыток">
+                      ${tableAttempts(person)}
+                    </td>
+                    <td data-label="Действие"><button class="btn primary" data-action="open-person" data-type="${kind}" data-return-view="${state.view === "finalStages" ? "finalStages" : kind}" data-id="${person.id}">Открыть</button></td>
+                  </tr>
+                `;
+              }).join("") : `
+                <tr>
+                  <td data-label="Нет данных" colspan="6">
+                    <div class="error-box">По выбранным фильтрам никого не найдено.</div>
+                  </td>
+                </tr>
+              `}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderPeople(kind) {
+      const isEmployees = kind === "employees";
+      const filters = [
+        ["all", "Все"],
+        ...(isEmployees
+          ? [["в обучении", "В обучении"], ["исчерпаны попытки", "Исчерпаны попытки"], ["обучение завершено", "Завершено"]]
+          : [["в обучении", "В обучении"], ["итоговый этап", "Итоговый этап"], ["исчерпаны попытки", "Исчерпаны попытки"], ["обучение завершено", "Завершено"]])
+      ];
+      const list = filteredPeople(kind);
+      const filter = state.filters[kind];
+
+      setAppHtml(`
+        <section class="view active">
+          <div class="view-head">
+            <h2>${isEmployees ? "Сотрудники" : "Список стажёров"}</h2>
+            <p>${isEmployees ? "Здесь действующие сотрудники, которых система или управляющий направили пройти назначенные курсы и блоки." : "Таблица показывает ФИО, короткий номер курса и блока, процент прогресса и оставшиеся попытки. Детали открываются в карточке."}</p>
+          </div>
+          ${renderAccessControls(kind)}
+          ${renderMetricGrid(list)}
+          <div class="toolbar">
+            ${filters.map(([key, label]) => `<button class="chip ${filter.status === key ? "active" : ""}" data-action="filter" data-scope="${kind}" data-filter="${key}">${label}</button>`).join("")}
+          </div>
+          ${renderPeopleTable(kind, list)}
+        </section>
+      `);
+    }
+
+    function renderTrainees() {
+      renderPeople("trainees");
+    }
+
+    function renderFinalStages() {
+      const list = filteredFinalStageTrainees();
+      setAppHtml(`
+        <section class="view active">
+          <div class="view-head">
+            <h2>Итоговые этапы</h2>
+            <p>Здесь отображаются стажёры, которые завершили онлайн-часть и ждут живую приёмку администратора.</p>
+          </div>
+          ${renderAccessControls("finalStages")}
+          ${renderMetricGrid(list)}
+          ${renderPeopleTable("trainees", list)}
+        </section>
+      `);
+    }
+
+    function renderEmployees() {
+      renderPeople("employees");
+    }
+
+    function accountTypeOptions(selected = "Стажёр") {
+      return ["Стажёр", "Сотрудник", "Администратор", "Супер-администратор"].map((type) => (
+        `<option value="${type}" ${type === selected ? "selected" : ""}>${type}</option>`
+      )).join("");
+    }
+
+    function renderAccountsTable(list) {
+      return `
+        <div class="table-wrap">
+          <table class="people-table">
+            <thead>
+              <tr>
+                <th>ФИО</th>
+                <th>Тип</th>
+                <th>Логин</th>
+                <th>Город / точка</th>
+                <th>Доступ</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.length ? list.map((account) => `
+                <tr>
+                  <td data-label="ФИО"><strong>${escapeHtml(account.name)}</strong></td>
+                  <td data-label="Тип"><span class="status ${account.type === "Супер-администратор" ? "danger" : account.type === "Администратор" ? "study" : account.type === "Сотрудник" ? "retake" : "done"}">${escapeHtml(account.type)}</span></td>
+                  <td data-label="Логин"><strong>${escapeHtml(account.login)}</strong><div class="table-sub">пароль задаётся при создании</div></td>
+                  <td data-label="Город / точка"><strong>${escapeHtml(account.city)}</strong><div class="table-sub">${escapeHtml(account.branch)}</div></td>
+                  <td data-label="Доступ">${escapeHtml(account.access)}</td>
+                </tr>
+              `).join("") : `
+                <tr>
+                  <td colspan="5" data-label="Нет данных"><div class="error-box">По выбранным фильтрам аккаунтов нет.</div></td>
+                </tr>
+              `}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderAccounts() {
+      const filter = state.filters.accounts;
+      const typeFilters = [["all", "Все"], ["Стажёр", "Стажёры"], ["Сотрудник", "Сотрудники"], ["Администратор", "Администраторы"], ["Супер-администратор", "Супер-админы"]];
+      const list = filteredAccounts();
+      setAppHtml(`
+        <section class="view active">
+          <div class="view-head">
+            <h2>Аккаунты</h2>
+            <p>Стажёры обычно создаются автоматически после собеседования, но админка должна уметь создать логин и пароль вручную. Администраторы привязываются к городу и филиалу, супер-администратор видит всю сеть.</p>
+          </div>
+
+          ${renderNetworkFilters("accounts")}
+
+          <article class="item">
+            <div class="item-top">
+              <div class="item-title">
+                <h3>Создать аккаунт</h3>
+                <p>Авторизация для стажёров, сотрудников и администраторов происходит по логину и паролю.</p>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label>Тип аккаунта</label>
+                <select class="account-type">${accountTypeOptions("Стажёр")}</select>
+              </div>
+              <div class="field">
+                <label>ФИО</label>
+                <input class="account-name" placeholder="Например: Айдана Ермек">
+              </div>
+              <div class="field">
+                <label>Логин</label>
+                <input class="account-login" placeholder="hani.aidana">
+              </div>
+              <div class="field">
+                <label>Пароль</label>
+                <input class="account-password" placeholder="Временный пароль">
+              </div>
+              <div class="field">
+                <label>Город</label>
+                <select class="account-city">${cityOptions("Алматы", false)}</select>
+              </div>
+              <div class="field">
+                <label>Точка / филиал</label>
+                <select class="account-branch">${branchOptions("Алматы", "Абая")}</select>
+              </div>
+              <button class="btn primary" data-action="create-account">Создать аккаунт</button>
+            </div>
+          </article>
+
+          <div class="toolbar">
+            ${typeFilters.map(([key, label]) => `<button class="chip ${filter.status === key ? "active" : ""}" data-action="filter" data-scope="accounts" data-filter="${key}">${label}</button>`).join("")}
+          </div>
+
+          ${renderAccountsTable(list)}
+        </section>
+      `);
+    }
+
+    function filteredFunnel() {
+      const viewer = viewerAccount();
+      const filter = state.filters.analytics;
+      return state.funnel.filter((item) => {
+        const accessOk = pointAllowedForViewer(item, viewer);
+        const cityOk = filter.city === "all" || item.city === filter.city;
+        const branchOk = filter.branch === "all" || item.branch === filter.branch;
+        return accessOk && cityOk && branchOk;
+      });
+    }
+
+    function conversionClass(value) {
+      if (value < 80) return "conversion-pill danger";
+      if (value < 88) return "conversion-pill warn";
+      return "conversion-pill";
+    }
+
+    function renderAnalytics() {
+      const list = filteredFunnel();
+      const maxTime = Math.max(...list.map((item) => item.avgTimeHours), 1);
+      const avgTime = list.length
+        ? (list.reduce((sum, item) => sum + item.avgTimeHours, 0) / list.length).toFixed(1)
+        : "0.0";
+      const avgConversion = list.length
+        ? Math.round(list.reduce((sum, item) => sum + item.conversion, 0) / list.length)
+        : 0;
+      const totalEntrants = list.reduce((sum, item) => sum + item.entrants, 0);
+      const totalCompleted = list.reduce((sum, item) => sum + item.completed, 0);
+      setAppHtml(`
+        <section class="view active">
+          <div class="view-head">
+            <h2>Воронка обучения</h2>
+            <p>Графический отчёт показывает среднее время на каждом этапе и конверсию перехода в следующий курс или финальную проверку. Обычный админ видит только закреплённые точки, супер-админ видит всю сеть.</p>
+          </div>
+
+          ${renderAccessControls("analytics")}
+
+          <div class="metric-grid">
+            <div class="metric"><b>${avgTime} ч</b><span>среднее время на этапе</span></div>
+            <div class="metric"><b>${avgConversion}%</b><span>средняя конверсия перехода</span></div>
+            <div class="metric"><b>${totalEntrants}</b><span>входов в этапы</span></div>
+            <div class="metric"><b>${totalCompleted}</b><span>успешных переходов дальше</span></div>
+          </div>
+
+          <div class="funnel-list">
+            ${list.length ? list.map((item, index) => `
+              <article class="funnel-step">
+                <div class="funnel-step-head">
+                  <div>
+                    <strong>${index + 1}. ${escapeHtml(item.title)}</strong>
+                    <span>${escapeHtml(item.city)} / ${escapeHtml(item.branch)} · ${escapeHtml(item.stage)}</span>
+                  </div>
+                  <span class="${conversionClass(item.conversion)}">${item.conversion}% → дальше</span>
+                </div>
+                <div class="funnel-bar" aria-label="Среднее время ${item.avgTimeHours} часов">
+                  <i style="--value: ${Math.max(8, Math.round((item.avgTimeHours / maxTime) * 100))}%"></i>
+                </div>
+                <div class="funnel-meta">
+                  <div class="meta"><span>Среднее время</span><b>${item.avgTimeHours} ч</b></div>
+                  <div class="meta"><span>Зашли на этап</span><b>${item.entrants}</b></div>
+                  <div class="meta"><span>Перешли дальше</span><b>${item.completed}</b></div>
+                </div>
+              </article>
+            `).join("") : `
+              <div class="error-box">По выбранному городу и точке данных воронки пока нет.</div>
+            `}
+          </div>
+        </section>
+      `);
+    }
+
+    function filteredAlerts() {
+      const filter = state.filters.alerts;
+      const viewer = viewerAccount();
+      return state.alerts.filter((alert) => {
+        const accessOk = pointAllowedForViewer(alert, viewer);
+        const cityOk = filter.city === "all" || alert.city === filter.city;
+        const branchOk = filter.branch === "all" || alert.branch === filter.branch;
+        const statusOk = filter.status === "all" || alert.status === filter.status;
+        return accessOk && cityOk && branchOk && statusOk;
+      });
+    }
+
+    function alertStatusLabel(status) {
+      if (status === "new") return "новый";
+      if (status === "in-progress") return "в работе";
+      return "закрыт";
+    }
+
+    function alertStatusClass(status, severity) {
+      if (severity === "critical" && status === "new") return "status danger";
+      if (status === "in-progress") return "status retake";
+      return "status done";
+    }
+
+    function renderAlerts() {
+      const filter = state.filters.alerts;
+      const list = filteredAlerts();
+      const critical = list.filter((alert) => alert.severity === "critical").length;
+      const newCount = list.filter((alert) => alert.status === "new").length;
+      const statusFilters = [["all", "Все"], ["new", "Новые"], ["closed", "Закрытые"]];
+
+      setAppHtml(`
+        <section class="view active">
+          <div class="view-head">
+            <h2>Алерты</h2>
+            <p>Двухуровневая система: событие фиксируется в панели закреплённого управляющего и параллельно дублируется внешним push-уведомлением ответственному за точку.</p>
+          </div>
+
+          ${renderAccessControls("alerts")}
+
+          <div class="metric-grid">
+            <div class="metric"><b>${list.length}</b><span>алертов по фильтру</span></div>
+            <div class="metric"><b>${critical}</b><span>критических</span></div>
+            <div class="metric"><b>${newCount}</b><span>новых</span></div>
+            <div class="metric"><b>2</b><span>канала уведомления</span></div>
+          </div>
+
+          <div class="toolbar">
+            ${statusFilters.map(([key, label]) => `<button class="chip ${filter.status === key ? "active" : ""}" data-action="filter" data-scope="alerts" data-filter="${key}">${label}</button>`).join("")}
+          </div>
+
+          <div class="alert-list">
+            ${list.length ? list.map((alert) => {
+              const person = personById(alert.personId);
+              const label = alert.personType === "employees" ? "Сотрудник" : "Стажёр";
+              return `
+                <article class="alert-card">
+                  <div class="alert-top">
+                    <div class="alert-title">
+                      <strong>${escapeHtml(alert.title)}</strong>
+                      <span>${escapeHtml(alert.city)} / ${escapeHtml(alert.branch)} · ${escapeHtml(alert.createdAt)}</span>
+                    </div>
+                    <span class="${alertStatusClass(alert.status, alert.severity)}">${alertStatusLabel(alert.status)}</span>
+                  </div>
+                  <div class="meta-grid">
+                    <div class="meta"><span>${label}</span><b>${escapeHtml(person?.name || "Пользователь")}</b></div>
+                    <div class="meta"><span>Точка</span><b>${escapeHtml(alert.branch)}</b></div>
+                  </div>
+                  <div class="error-box">
+                    <b>Причина</b>
+                    ${escapeHtml(alert.reason)}
+                  </div>
+                  <div class="alert-channels">
+                    <div class="alert-channel">
+                      <b>Уровень 1: панель админки</b>
+                      <span>Закреплено ответственному пользователю по этой точке.</span>
+                    </div>
+                    <div class="alert-channel push">
+                      <b>Уровень 2: внешний push</b>
+                      <span>Продублировано внешним push-уведомлением ответственному по точке.</span>
+                    </div>
+                  </div>
+                  <div class="button-row one">
+                    <button class="btn primary" data-action="open-person" data-type="${alert.personType}" data-id="${alert.personId}">Открыть карточку</button>
+                  </div>
+                </article>
+              `;
+            }).join("") : `
+              <div class="error-box">По выбранным фильтрам алертов нет.</div>
+            `}
+          </div>
+        </section>
+      `);
+    }
+
+    function learningStatusClass(status) {
+      if (status === "нужен разбор" || status === "исчерпаны попытки") return "status danger";
+      if (status === "назначено") return "status retake";
+      if (status === "завершён" || status === "завершено") return "status done";
+      return "status study";
+    }
+
+    function renderAssignedBlocks(course) {
+      const blocks = Array.isArray(course[4]) ? course[4] : [];
+      if (!blocks.length) return "";
+      return `
+        <div class="assigned-blocks">
+          ${blocks.map((block) => `
+            <div class="assigned-block">
+              <span>${escapeHtml(block.title)}</span>
+              <b class="${learningStatusClass(block.status)}">${escapeHtml(block.status)}</b>
+              <small>${escapeHtml(block.result)}</small>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderLearningCourse(course) {
+      return `
+        <div class="block-line">
+          <div>
+            <strong>${escapeHtml(course[0])}</strong>
+            <span>Результат: ${escapeHtml(course[2])}${course[3] === "final" ? " · итоговый курс" : ""}</span>
+          </div>
+          <span class="${learningStatusClass(course[1])}">${escapeHtml(course[1])}</span>
+          ${renderAssignedBlocks(course)}
+        </div>
+      `;
+    }
+
+    function renderTrainee() {
+      const trainee = traineeById(state.selectedTraineeId) || peopleSource(state.selectedPersonType)[0] || state.trainees[0];
+      state.selectedTraineeId = trainee.id;
+      state.selectedPersonType = personKindById(trainee.id);
+      const backView = state.selectedReturnView || (state.selectedPersonType === "employees" ? "employees" : "trainees");
+      const personLabel = personTypeLabel(state.selectedPersonType);
+      const finalDecision = state.selectedPersonType === "trainees" && trainee.status === "итоговый этап";
+      setAppHtml(`
+        <section class="view active">
+          <button class="back-btn" data-action="back-people" data-view="${backView}">Назад к ${backView === "finalStages" ? "итоговым этапам" : state.selectedPersonType === "employees" ? "сотрудникам" : "стажёрам"}</button>
+          <div class="view-head">
+            <h2>${escapeHtml(trainee.name)}</h2>
+            <p>${escapeHtml(trainee.phone)} - ${escapeHtml(trainee.role)} - ${escapeHtml(trainee.city)} / ${escapeHtml(trainee.branch)}</p>
+          </div>
+          <article class="item">
+            <div class="item-top">
+              <div class="item-title">
+                <h3>Отчёт по ${personLabel === "сотрудник" ? "сотруднику" : "стажёру"}</h3>
+                <p>Старт обучения: ${escapeHtml(trainee.start)}. Администратор: ${escapeHtml(trainee.admin)}.</p>
+              </div>
+              <span class="${statusClass(trainee.statusType)}">${escapeHtml(trainee.status)}</span>
+            </div>
+            <div class="progress" style="--value: ${trainee.progress}%"><i></i></div>
+            <div class="meta-grid">
+              <div class="meta"><span>Прогресс</span><b>${trainee.progress}%</b></div>
+              <div class="meta"><span>Попытки блока</span><b>${escapeHtml(cardAttemptsLabel(trainee))}</b></div>
+              <div class="meta"><span>Текущий курс</span><b>${escapeHtml(trainee.course)}</b></div>
+              <div class="meta"><span>Текущий блок</span><b>${escapeHtml(trainee.block)}</b></div>
+            </div>
+            ${trainee.reason ? `
+              <div class="error-box">
+                <b>Причина назначения</b>
+                ${escapeHtml(trainee.reason)}
+              </div>
+            ` : ""}
+            ${trainee.status === "исчерпаны попытки" ? `
+              <div class="error-box">
+                <b>Попытки исчерпаны по конкретному блоку</b>
+                Курс: ${escapeHtml(trainee.course)}<br>
+                Блок: ${escapeHtml(trainee.block)}<br>
+                Причина: ${escapeHtml(trainee.attemptReason || "лимит попыток по тесту")}
+              </div>
+            ` : ""}
+            ${finalDecision ? `
+              <div class="error-box">
+                <b>Решение по итоговому этапу</b>
+                Администратор принимает стажёра вживую и выбирает: отправить на переобучение или завершить обучение.
+              </div>
+              <div class="button-row">
+                <button class="btn warn" data-action="assign-retake" data-id="${trainee.id}">Отправить на переобучение</button>
+                <button class="btn primary" data-action="complete-final-stage" data-id="${trainee.id}">Обучение пройдено</button>
+              </div>
+            ` : `
+              <div class="button-row ${trainee.status === "исчерпаны попытки" ? "" : "one"}">
+                <button class="btn warn" data-action="assign-retake" data-id="${trainee.id}">Назначить обучение</button>
+                ${trainee.status === "исчерпаны попытки" ? `<button class="btn" data-action="reset-attempts" data-id="${trainee.id}">Сбросить попытки</button>` : ""}
+              </div>
+            `}
+          </article>
+
+          <h3 class="section-title">Курсы и блоки</h3>
+          ${trainee.courses.map(renderLearningCourse).join("")}
+
+          <h3 class="section-title">Ошибочные ответы</h3>
+          ${trainee.wrong.map((item) => `
+            <div class="error-box">
+              <div class="mistake-source">
+                <span>${escapeHtml(item.course)}</span>
+                <span>${escapeHtml(item.block)}</span>
+                ${item.critical ? '<span class="critical">Критичный вопрос</span>' : ""}
+              </div>
+              <b>${escapeHtml(item.question)}</b>
+              Ответ стажёра: ${escapeHtml(item.trainee)}<br>
+              Правильный ответ: ${escapeHtml(item.correct)}
+            </div>
+          `).join("")}
+        </section>
+      `);
+    }
+
+    function renderRetakes() {
+      setAppHtml(`
+        <section class="view active">
+          <div class="view-head">
+            <h2>Назначенное обучение</h2>
+            <p>Здесь видны назначенные курсы и блоки: кто назначил и результат после прохождения.</p>
+          </div>
+          <div class="list">
+            ${state.retakes.map((item) => {
+              const trainee = traineeById(item.traineeId);
+              return `
+                <article class="item">
+                  <div class="item-top">
+                    <div class="item-title">
+                      <h3>${escapeHtml(trainee.name)}</h3>
+                      <p>${escapeHtml(item.course)} - ${escapeHtml(item.block)}</p>
+                    </div>
+                    <span class="status retake">${escapeHtml(item.status)}</span>
+                  </div>
+                  <div class="meta-grid">
+                    <div class="meta"><span>Кто назначил</span><b>${escapeHtml(item.assignedBy)}</b></div>
+                    <div class="meta"><span>Дата</span><b>${escapeHtml(item.assignedAt)}</b></div>
+                    <div class="meta"><span>Роль</span><b>${escapeHtml(trainee.role)}</b></div>
+                    <div class="meta"><span>Результат</span><b>${escapeHtml(item.result)}</b></div>
+                  </div>
+                  <div class="button-row">
+                    <button class="btn primary" data-action="open-trainee" data-id="${trainee.id}">Открыть</button>
+                    <button class="btn danger" data-action="cancel-retake" data-id="${item.id}">Снять</button>
+                  </div>
+                </article>
+              `;
+            }).join("")}
+          </div>
+        </section>
+      `);
+    }
+
+    function renderAttempts() {
+      const list = state.trainees.filter((item) => item.status === "исчерпаны попытки");
+      setAppHtml(`
+        <section class="view active">
+          <div class="view-head">
+            <h2>Исчерпаны попытки</h2>
+            <p>Если лимит попыток по блоку закончился, следующий блок не открывается до решения администратора.</p>
+          </div>
+          <div class="list">
+            ${list.map((trainee) => `
+              <article class="item">
+                <div class="item-top">
+                  <div class="item-title">
+                    <h3>${escapeHtml(trainee.name)}</h3>
+                    <p>${escapeHtml(trainee.course)} - ${escapeHtml(trainee.block)}</p>
+                  </div>
+                  <span class="status danger">${escapeHtml(trainee.attempts)}</span>
+                </div>
+                <div class="meta-grid">
+                  <div class="meta"><span>Последний результат</span><b>58%</b></div>
+                  <div class="meta"><span>Дата попытки</span><b>20 мая 2026</b></div>
+                  <div class="meta"><span>Критичные ошибки</span><b>1</b></div>
+                  <div class="meta"><span>Причина</span><b>${escapeHtml(trainee.attemptReasonShort || "нужен разбор")}</b></div>
+                </div>
+                <div class="error-box">
+                  <b>Причина исчерпания попыток</b>
+                  ${escapeHtml(trainee.attemptReason || "Лимит попыток по блоку закончился.")}
+                </div>
+                <div class="button-row">
+                  <button class="btn" data-action="extra-attempt" data-id="${trainee.id}">Открыть попытку</button>
+                  <button class="btn primary" data-action="reset-attempts" data-id="${trainee.id}">Сбросить</button>
+                </div>
+                <div class="button-row one">
+                  <button class="btn warn" data-action="assign-retake" data-id="${trainee.id}">Назначить обучение</button>
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        </section>
+      `);
+    }
+
+    function renderQuestionEditor(question, index) {
+      return `
+        <div class="question-card" data-question-index="${index}">
+          <div class="field">
+            <label>Вопрос ${index + 1}</label>
+            <textarea class="question-text">${escapeHtml(question.text)}</textarea>
+          </div>
+          <div class="toggle-line">
+            Критичный вопрос
+            <label class="switch">
+              <input class="question-critical" type="checkbox" ${question.critical ? "checked" : ""}>
+              <i></i>
+            </label>
+          </div>
+          <div class="field">
+            <label>Ответы. Отмеченные варианты считаются правильными, остальные автоматически неправильные.</label>
+            <div class="check-list">
+              ${question.answers.map((answer, answerIndex) => `
+                <label class="answer-row" data-answer-index="${answerIndex}">
+                  <input class="answer-correct" type="checkbox" ${answer.correct ? "checked" : ""}>
+                  <input class="answer-text" value="${escapeHtml(answer.text)}">
+                </label>
+              `).join("")}
+            </div>
+          </div>
+          <button class="btn" data-action="add-answer" data-question="${index}">Добавить вариант ответа</button>
+        </div>
+      `;
+    }
+
+    function renderTextToolbar() {
+      return `
+        <div class="editor-toolbar" aria-label="Простое оформление текста">
+          <button class="tool-btn" type="button">B</button>
+          <button class="tool-btn" type="button">I</button>
+          <button class="tool-btn" type="button">•</button>
+          <button class="tool-btn" type="button">1.</button>
+          <button class="tool-btn" type="button">H</button>
+        </div>
+      `;
+    }
+
+    function programOptions(selected) {
+      return ["Стажёр-кассир", "Стажёр-официант", "Администратор"].map((program) => (
+        `<option value="${program}" ${program === selected ? "selected" : ""}>${program}</option>`
+      )).join("");
+    }
+
+    function getCurrentCourse() {
+      return state.content.courses.find((course) => course.id === state.content.selectedCourseId) || state.content.courses[0];
+    }
+
+    function getCurrentBlock() {
+      const course = getCurrentCourse();
+      return course?.blocks.find((block) => block.id === state.content.selectedBlockId) || course?.blocks[0];
+    }
+
+    function renderBlockTab() {
+      const block = getCurrentBlock();
+      if (!block) {
+        return "";
+      }
+
+      if (state.contentTab === "video") {
+        return `
+          <div class="form-grid">
+            <div class="upload-box">
+              <strong>Загрузка видео</strong>
+              <span>В реальной системе здесь будет выбор файла с компьютера или телефона.</span>
+              <button class="btn" type="button">Загрузить видео</button>
+            </div>
+            <div class="field">
+              <label>Ссылка на видео, если оно размещено снаружи</label>
+              <input class="content-video" value="${escapeHtml(block.video)}" placeholder="YouTube, Google Drive, Vimeo">
+            </div>
+          </div>
+        `;
+      }
+
+      if (state.contentTab === "checklist") {
+        return `
+          <div class="form-grid">
+            <div class="field">
+              <label>Текстовый чек-лист</label>
+              ${renderTextToolbar()}
+              <textarea class="content-checklist">${escapeHtml(block.checklist)}</textarea>
+            </div>
+            <div class="upload-box">
+              <strong>Изображения для чек-листа</strong>
+              <span>Можно загрузить готовую картинку, схему или памятку.</span>
+              <button class="btn" type="button">Загрузить изображение</button>
+            </div>
+          </div>
+        `;
+      }
+
+      if (state.contentTab === "text") {
+        return `
+          <div class="form-grid">
+            <div class="field">
+              <label>Текстовый материал</label>
+              ${renderTextToolbar()}
+              <textarea class="content-text">${escapeHtml(block.text)}</textarea>
+            </div>
+            <div class="upload-box">
+              <strong>Загрузка документа</strong>
+              <span>Можно загрузить документ с текстом, чтобы он подтянулся в материал стажёра.</span>
+              <button class="btn" type="button">Загрузить документ</button>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="list">
+          ${block.questions.map(renderQuestionEditor).join("")}
+        </div>
+        <div class="button-row">
+          <button class="btn" data-action="add-question">Добавить вопрос</button>
+          <button class="btn primary" data-action="save-content">Сохранить тест</button>
+        </div>
+      `;
+    }
+
+    function renderContent() {
+      if (state.content.view === "course") {
+        renderContentCourse();
+        return;
+      }
+      if (state.content.view === "block") {
+        renderContentBlock();
+        return;
+      }
+      renderContentCourses();
+    }
+
+    function renderContentCourses() {
+      setAppHtml(`
+        <section class="view active">
+          <div class="view-head">
+            <h2>Контент обучения</h2>
+            <p>Сначала создаётся курс и привязывается к программе: стажёр-кассир, стажёр-официант или администратор.</p>
+          </div>
+
+          <div class="content-stack">
+            <article class="item">
+              <div class="item-top">
+                <div class="item-title">
+                  <h3>Создать курс</h3>
+                  <p>После сохранения курс появится в списке, и в него можно будет зайти для создания блоков.</p>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="field">
+                  <label>Программа курса</label>
+                  <select class="new-course-program">${programOptions("Стажёр-кассир")}</select>
+                </div>
+                <div class="field">
+                  <label>Название курса</label>
+                  <input class="new-course-title" placeholder="Например: Курс 2. Сервис и общение">
+                </div>
+                <div class="field">
+                  <label>Описание курса</label>
+                  <textarea class="new-course-description" placeholder="Кратко: что внутри курса и зачем он нужен"></textarea>
+                </div>
+                <label class="toggle-line">
+                  Курс включён
+                  <span class="switch">
+                    <input class="new-course-active" type="checkbox" checked>
+                    <i></i>
+                  </span>
+                </label>
+                <label class="toggle-line">
+                  Итоговый курс
+                  <span class="switch">
+                    <input class="new-course-final" type="checkbox">
+                    <i></i>
+                  </span>
+                </label>
+                <button class="btn primary" data-action="create-course">Сохранить курс</button>
+              </div>
+            </article>
+
+            <article class="item">
+              <div class="item-top">
+                <div class="item-title">
+                  <h3>Курсы</h3>
+                  <p>Открой курс, чтобы создавать и редактировать его блоки.</p>
+                </div>
+              </div>
+              <div class="block-picker">
+                ${state.content.courses.map((course) => `
+                  <div class="block-line">
+                    <div>
+                      <strong>${escapeHtml(course.title)}</strong>
+                      <span>${escapeHtml(course.program)} - ${course.blocks.length} блок(а) - ${course.active ? "включён" : "отключён"}${course.final ? " - итоговый курс" : ""}</span>
+                    </div>
+                    <button class="btn" data-action="open-course" data-course="${course.id}">Открыть</button>
+                  </div>
+                `).join("")}
+              </div>
+            </article>
+          </div>
+        </section>
+      `);
+    }
+
+    function renderContentCourse() {
+      const course = getCurrentCourse();
+      if (!course) {
+        state.content.view = "courses";
+        renderContentCourses();
+        return;
+      }
+
+      setAppHtml(`
+        <section class="view active">
+          <button class="back-btn" data-action="back-courses">Назад к курсам</button>
+          <div class="view-head">
+            <h2>${escapeHtml(course.title)}</h2>
+            <p>Курс привязан к программе: ${escapeHtml(course.program)}. Внутри курса создаются блоки.</p>
+          </div>
+
+          <div class="content-stack">
+            <article class="item">
+              <div class="item-top">
+                <div class="item-title">
+                  <h3>Настройки курса</h3>
+                  <p>Здесь меняется программа, название, описание и доступность курса.</p>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="field">
+                  <label>Программа курса</label>
+                  <select class="course-program">${programOptions(course.program)}</select>
+                </div>
+                <div class="field">
+                  <label>Название курса</label>
+                  <input class="course-title" value="${escapeHtml(course.title)}">
+                </div>
+                <div class="field">
+                  <label>Описание курса</label>
+                  <textarea class="course-description">${escapeHtml(course.description)}</textarea>
+                </div>
+                <label class="toggle-line">
+                  Курс включён
+                  <span class="switch">
+                    <input class="course-active" type="checkbox" ${course.active ? "checked" : ""}>
+                    <i></i>
+                  </span>
+                </label>
+                <label class="toggle-line">
+                  Итоговый курс
+                  <span class="switch">
+                    <input class="course-final" type="checkbox" ${course.final ? "checked" : ""}>
+                    <i></i>
+                  </span>
+                </label>
+                <button class="btn primary" data-action="save-course">Сохранить курс</button>
+              </div>
+            </article>
+
+            <article class="item">
+              <div class="item-top">
+                <div class="item-title">
+                  <h3>Создать блок в курсе</h3>
+                  <p>После сохранения блок появится в списке, и его можно будет открыть для наполнения.</p>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="field">
+                  <label>Название блока</label>
+                  <input class="new-block-title" placeholder="Например: Блок 3. Готовность к смене">
+                </div>
+                <div class="field">
+                  <label>Проходной балл, %</label>
+                  <input class="new-block-pass-score" type="number" min="0" max="100" value="70">
+                </div>
+                <div class="field">
+                  <label>Описание блока</label>
+                  <textarea class="new-block-description" placeholder="Что изучает стажёр в этом блоке"></textarea>
+                </div>
+                <label class="toggle-line">
+                  Блок включён
+                  <span class="switch">
+                    <input class="new-block-active" type="checkbox" checked>
+                    <i></i>
+                  </span>
+                </label>
+                <button class="btn primary" data-action="create-block">Сохранить блок</button>
+              </div>
+            </article>
+
+            <article class="item">
+              <div class="item-top">
+                <div class="item-title">
+                  <h3>Блоки курса</h3>
+                  <p>Открой блок, чтобы добавить видео, чек-листы, текст и тест.</p>
+                </div>
+              </div>
+              <div class="block-picker">
+                ${course.blocks.length ? course.blocks.map((block) => `
+                  <div class="block-line">
+                    <div>
+                      <strong>${escapeHtml(block.title)}</strong>
+                      <span>${escapeHtml(block.description || "Описание не заполнено")} - ${block.active ? "включён" : "отключён"}</span>
+                    </div>
+                    <button class="btn" data-action="open-block" data-block="${block.id}">Редактировать</button>
+                  </div>
+                `).join("") : `
+                  <div class="error-box">В этом курсе пока нет блоков. Создай первый блок выше.</div>
+                `}
+              </div>
+            </article>
+          </div>
+        </section>
+      `);
+    }
+
+    function renderContentBlock() {
+      const course = getCurrentCourse();
+      const block = getCurrentBlock();
+      if (!course || !block) {
+        state.content.view = "course";
+        renderContentCourse();
+        return;
+      }
+
+      setAppHtml(`
+        <section class="view active">
+          <button class="back-btn" data-action="back-course">Назад к блокам курса</button>
+          <div class="view-head">
+            <h2>${escapeHtml(block.title)}</h2>
+            <p>${escapeHtml(course.title)} - ${escapeHtml(course.program)}</p>
+          </div>
+
+          <div class="content-stack">
+            <article class="item">
+              <div class="item-top">
+                <div class="item-title">
+                  <h3>Редактор блока</h3>
+                  <p>Здесь настраиваются название, описание, проходной балл и доступность блока.</p>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="field">
+                  <label>Название блока</label>
+                  <input class="content-block-title" value="${escapeHtml(block.title)}">
+                </div>
+                <div class="field">
+                  <label>Проходной балл по блоку, %</label>
+                  <input class="content-pass-score" type="number" min="0" max="100" value="${block.passScore}">
+                </div>
+                <div class="field">
+                  <label>Описание блока</label>
+                  <textarea class="content-block-description">${escapeHtml(block.description || "")}</textarea>
+                </div>
+                <label class="toggle-line">
+                  Блок включён
+                  <span class="switch">
+                    <input class="content-block-active" type="checkbox" ${block.active ? "checked" : ""}>
+                    <i></i>
+                  </span>
+                </label>
+                <button class="btn primary" data-action="save-block">Сохранить блок</button>
+              </div>
+            </article>
+
+            <article class="item">
+              <div class="item-top">
+                <div class="item-title">
+                  <h3>Наполнение блока</h3>
+                  <p>Видео, чек-листы, текстовый материал и тест редактируются отдельно по вкладкам.</p>
+                </div>
+              </div>
+              <div class="content-tabs">
+                <button class="tab-btn ${state.contentTab === "video" ? "active" : ""}" data-content-tab="video">Видео</button>
+                <button class="tab-btn ${state.contentTab === "checklist" ? "active" : ""}" data-content-tab="checklist">Чек-лист</button>
+                <button class="tab-btn ${state.contentTab === "text" ? "active" : ""}" data-content-tab="text">Текст</button>
+                <button class="tab-btn ${state.contentTab === "test" ? "active" : ""}" data-content-tab="test">Тест</button>
+              </div>
+              ${renderBlockTab()}
+              ${state.contentTab !== "test" ? `
+                <div class="button-row one">
+                  <button class="btn primary" data-action="save-content">Сохранить материал блока</button>
+                </div>
+              ` : ""}
+            </article>
+          </div>
+        </section>
+      `);
+    }
+
+    function renderReports() {
+      const completed = state.trainees.filter((item) => item.progress === 100);
+      setAppHtml(`
+        <section class="view active">
+          <div class="view-head">
+            <h2>Отчёты</h2>
+            <p>Отчёт открывается из карточки стажёра и показывает прохождение курса, ошибки, попытки и рекомендации.</p>
+          </div>
+          <div class="list">
+            ${completed.map((trainee) => `
+              <article class="item">
+                <div class="item-top">
+                  <div class="item-title">
+                    <h3>${escapeHtml(trainee.name)}</h3>
+                    <p>Назначенная программа: 100%. ${escapeHtml(trainee.role)} - ${escapeHtml(trainee.branch)}.</p>
+                  </div>
+                  <span class="${statusClass(trainee.statusType)}">${escapeHtml(trainee.status)}</span>
+                </div>
+                <div class="meta-grid">
+                  <div class="meta"><span>Курсы</span><b>${trainee.courses.length}/${trainee.courses.length}</b></div>
+                  <div class="meta"><span>Ошибки</span><b>${trainee.wrong.length}</b></div>
+                  <div class="meta"><span>Попытки</span><b>${escapeHtml(trainee.attempts)}</b></div>
+                  <div class="meta"><span>Рекомендация</span><b>${isFinalStage(trainee) ? "живая проверка" : "повторить материал"}</b></div>
+                </div>
+                <div class="button-row one">
+                  <button class="btn primary" data-action="open-trainee" data-id="${trainee.id}">Открыть отчёт</button>
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        </section>
+      `);
+    }
+
+    function renderSettings() {
+      setAppHtml(`
+        <section class="view active">
+          <div class="view-head">
+            <h2>Настройки</h2>
+            <p>Общие правила прохождения. Проходной балл настраивается в контенте курса или блока.</p>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label>Количество попыток на блок</label>
+              <input id="attemptLimit" type="number" min="1" max="10" value="${state.settings.attempts}">
+            </div>
+            <div class="field">
+              <label>Дневной лимит курсов</label>
+              <input id="dailyLimit" type="number" min="1" max="10" value="${state.settings.dailyLimit}">
+            </div>
+            <div class="toggle-line">
+              Следующий блок только после сдачи предыдущего
+              <label class="switch">
+                <input id="sequentialBlocks" type="checkbox" ${state.settings.sequentialBlocks ? "checked" : ""}>
+                <i></i>
+              </label>
+            </div>
+            <button class="btn primary" data-action="save-settings">Сохранить настройки</button>
+          </div>
+        </section>
+      `);
+    }
+
+    function render() {
+      title.textContent = viewTitle();
+      desktopTitle.textContent = viewTitle();
+      document.querySelectorAll(".nav-btn, .desktop-nav-btn").forEach((btn) => {
+        const view = btn.getAttribute("data-view");
+        btn.classList.toggle("active", view === state.view || (state.view === "trainee" && view === (state.selectedReturnView || state.selectedPersonType)));
+      });
+
+      if (state.view === "trainees") renderTrainees();
+      if (state.view === "finalStages") renderFinalStages();
+      if (state.view === "employees") renderEmployees();
+      if (state.view === "trainee") renderTrainee();
+      if (state.view === "accounts") renderAccounts();
+      if (state.view === "analytics") renderAnalytics();
+      if (state.view === "alerts") renderAlerts();
+      if (state.view === "content") renderContent();
+      if (state.view === "settings") renderSettings();
+    }
+
+    function assignRetakeModal(traineeId) {
+      const trainee = traineeById(traineeId) || state.trainees[0];
+      retakeDraft = [];
+      openModal(`
+        <h2>Назначить обучение</h2>
+        <p>${escapeHtml(trainee.name)} получит доступ только к выбранным курсам и блокам. Регистрация заново не нужна.</p>
+        <div class="form-grid">
+          <div class="field">
+            <label>Выберите курсы и блоки</label>
+            <div class="retake-course-list" id="retakeSelectionList"></div>
+            <div class="button-row one">
+              <button class="btn" type="button" data-action="add-retake-course">Добавить курс</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Кто назначил</label>
+            <select id="retakeSource">
+              <option>администратор</option>
+              <option>4SELL</option>
+            </select>
+          </div>
+          <div class="button-row">
+            <button class="btn" data-action="close-modal">Отмена</button>
+            <button class="btn primary" data-action="confirm-retake" data-id="${trainee.id}">Назначить</button>
+          </div>
+        </div>
+      `);
+      renderRetakeDraft();
+    }
+
+    function retakeCourseById(id) {
+      return retakeCourseCatalog.find((course) => course.id === id);
+    }
+
+    function selectionLabel(blocks) {
+      if (blocks.includes("Весь курс")) return "весь курс";
+      if (!blocks.length) return "блоки не выбраны";
+      return blocks.length === 1 ? "1 блок выбран" : `${blocks.length} блока выбраны`;
+    }
+
+    function renderRetakeCourseOptions(entry) {
+      const usedIds = retakeDraft.filter((item) => item.id !== entry.id).map((item) => item.courseId);
+      return `
+        <option value="">Выберите курс</option>
+        ${retakeCourseCatalog.map((course) => `
+          <option value="${course.id}" ${course.id === entry.courseId ? "selected" : ""} ${usedIds.includes(course.id) ? "disabled" : ""}>
+            ${escapeHtml(course.title)}
+          </option>
+        `).join("")}
+      `;
+    }
+
+    function renderRetakeDraft() {
+      const list = document.getElementById("retakeSelectionList");
+      if (!list) return;
+      if (!retakeDraft.length) {
+        list.innerHTML = `<div class="retake-empty">Курсы ещё не добавлены. Нажмите «Добавить курс», затем выберите нужные блоки.</div>`;
+        return;
+      }
+      list.innerHTML = retakeDraft.map((entry) => {
+        const course = retakeCourseById(entry.courseId);
+        if (!course) {
+          return `
+            <div class="retake-choice">
+              <div class="retake-choice-actions">
+                <div class="field">
+                  <label>Курс</label>
+                  <select data-retake-course-select data-choice-id="${entry.id}">${renderRetakeCourseOptions(entry)}</select>
+                </div>
+                <button class="btn" type="button" data-action="remove-retake-course" data-choice-id="${entry.id}">Убрать</button>
+              </div>
+            </div>
+          `;
+        }
+        const wholeCourse = entry.blocks.includes("Весь курс");
+        return `
+          <details class="retake-course" data-choice-id="${entry.id}" ${entry.expanded ? "open" : ""}>
+            <summary>
+              <span>${escapeHtml(course.title)}<small>${selectionLabel(entry.blocks)}</small></span>
+            </summary>
+            <div class="retake-options">
+              <div class="retake-course-actions">
+                <button class="btn" type="button" data-action="change-retake-course" data-choice-id="${entry.id}">Изменить курс</button>
+                <button class="btn" type="button" data-action="remove-retake-course" data-choice-id="${entry.id}">Убрать</button>
+              </div>
+              <label class="check-item">
+                <input type="checkbox" data-retake-block data-retake-whole data-choice-id="${entry.id}" value="Весь курс" ${wholeCourse ? "checked" : ""}>
+                <span>Весь курс</span>
+              </label>
+              ${course.blocks.map((block) => `
+                <label class="check-item">
+                  <input type="checkbox" data-retake-block data-choice-id="${entry.id}" value="${escapeHtml(block)}" ${entry.blocks.includes(block) ? "checked" : ""} ${wholeCourse ? "disabled" : ""}>
+                  <span>${escapeHtml(block)}</span>
+                </label>
+              `).join("")}
+            </div>
+          </details>
+        `;
+      }).join("");
+    }
+
+    function addRetakeCourse() {
+      if (retakeDraft.some((entry) => !entry.courseId)) {
+        showToast("Сначала выберите добавленный курс.");
+        return;
+      }
+      if (retakeDraft.length >= retakeCourseCatalog.length) {
+        showToast("Все курсы уже добавлены.");
+        return;
+      }
+      retakeDraft.forEach((entry) => {
+        entry.expanded = false;
+      });
+      retakeDraft.push({ id: `selection-${++retakeDraftCounter}`, courseId: "", blocks: [], expanded: true });
+      renderRetakeDraft();
+    }
+
+    function chooseRetakeCourse(choiceId, courseId) {
+      const entry = retakeDraft.find((item) => item.id === choiceId);
+      if (!entry) return;
+      entry.courseId = courseId;
+      entry.blocks = [];
+      entry.expanded = Boolean(courseId);
+      retakeDraft.forEach((item) => {
+        if (item.id !== choiceId) item.expanded = false;
+      });
+      renderRetakeDraft();
+    }
+
+    function removeRetakeCourse(choiceId) {
+      retakeDraft = retakeDraft.filter((entry) => entry.id !== choiceId);
+      renderRetakeDraft();
+    }
+
+    function changeRetakeCourse(choiceId) {
+      const entry = retakeDraft.find((item) => item.id === choiceId);
+      if (!entry) return;
+      entry.courseId = "";
+      entry.blocks = [];
+      entry.expanded = true;
+      renderRetakeDraft();
+    }
+
+    function toggleRetakeBlock(input) {
+      const entry = retakeDraft.find((item) => item.id === input.getAttribute("data-choice-id"));
+      if (!entry) return;
+      const value = input.value;
+      if (input.hasAttribute("data-retake-whole")) {
+        entry.blocks = input.checked ? ["Весь курс"] : [];
+      } else {
+        entry.blocks = entry.blocks.filter((block) => block !== "Весь курс" && block !== value);
+        if (input.checked) entry.blocks.push(value);
+      }
+      entry.expanded = true;
+      renderRetakeDraft();
+    }
+
+    function confirmRetake(traineeId) {
+      const trainee = traineeById(traineeId);
+      const source = document.getElementById("retakeSource").value;
+      const selectedCourses = retakeDraft.filter((entry) => entry.courseId);
+      if (!selectedCourses.length) {
+        showToast("Добавьте хотя бы один курс.");
+        return;
+      }
+      if (selectedCourses.some((entry) => !entry.blocks.length)) {
+        showToast("Выберите блоки в каждом добавленном курсе.");
+        return;
+      }
+      const selections = selectedCourses.map((entry) => ({
+        course: retakeCourseById(entry.courseId).title,
+        blocks: entry.blocks
+      }));
+      const course = selections.length === 1 ? selections[0].course : `Назначено курсов: ${selections.length}`;
+      const block = selections.map((selection) => (
+        `${selection.course}: ${selection.blocks.includes("Весь курс") ? "весь курс" : selection.blocks.join(", ")}`
+      )).join("; ");
+      trainee.status = "в обучении";
+      trainee.statusType = "study";
+      trainee.course = course;
+      trainee.block = block;
+      trainee.progress = 0;
+      trainee.attempts = "0/2";
+      state.retakes.unshift({
+        id: `r${Date.now()}`,
+        traineeId,
+        course,
+        block,
+        assignedBy: source,
+        assignedAt: "21 мая 2026",
+        status: "назначена",
+        result: "ожидает прохождения"
+      });
+      closeModal();
+      showToast("Обучение назначено. Пользователю откроется только выбранный материал.");
+      render();
+    }
+
+    function resetAttempts(traineeId, mode = "reset") {
+      const trainee = traineeById(traineeId);
+      trainee.attempts = "0/2";
+      trainee.status = "в обучении";
+      trainee.statusType = "study";
+      showToast(mode === "extra" ? "Дополнительная попытка открыта." : "Попытки по блоку сброшены.");
+      render();
+    }
+
+    function completeFinalStage(traineeId) {
+      const trainee = traineeById(traineeId);
+      if (!trainee) return;
+      trainee.status = "обучение завершено";
+      trainee.statusType = "done";
+      trainee.course = "Завершено";
+      trainee.block = "Итоговый этап пройден";
+      trainee.progress = 100;
+      trainee.attempts = "0/2";
+      trainee.courses = trainee.courses.map((course) => {
+        if (course[3] !== "final") return course;
+        const blocks = Array.isArray(course[4]) ? course[4].map((block) => ({
+          ...block,
+          status: "завершён",
+          result: "принят администратором"
+        })) : course[4];
+        return [course[0], "завершён", "принят администратором", course[3], blocks];
+      });
+      showToast("Итоговый этап принят. Стажёр переведён в завершённое обучение.");
+      setView("trainees");
+    }
+
+    function confirmResetAttemptsModal(traineeId) {
+      const trainee = traineeById(traineeId);
+      const label = personKindById(traineeId) === "employees" ? "Сотрудник" : "Стажёр";
+      openModal(`
+        <h2>Сбросить попытки?</h2>
+        <p>Это действие обнулит попытки по конкретному блоку. Сделано с подтверждением, чтобы не сбросить случайно.</p>
+        <div class="meta-grid">
+          <div class="meta"><span>${label}</span><b>${escapeHtml(trainee.name)}</b></div>
+          <div class="meta"><span>Попытки сейчас</span><b>${escapeHtml(trainee.attempts)}</b></div>
+          <div class="meta"><span>Курс</span><b>${escapeHtml(trainee.course)}</b></div>
+          <div class="meta"><span>Блок</span><b>${escapeHtml(trainee.block)}</b></div>
+        </div>
+        <div class="button-row">
+          <button class="btn" data-action="close-modal">Отмена</button>
+          <button class="btn danger" data-action="confirm-reset-attempts" data-id="${trainee.id}">Да, сбросить</button>
+        </div>
+      `);
+    }
+
+    function cancelRetake(retakeId) {
+      const index = state.retakes.findIndex((item) => item.id === retakeId);
+      if (index >= 0) {
+        const [removed] = state.retakes.splice(index, 1);
+        const trainee = traineeById(removed.traineeId);
+        if (trainee) {
+          trainee.status = "обучение завершено";
+          trainee.statusType = "done";
+        }
+      }
+      showToast("Назначенное обучение снято администратором.");
+      render();
+    }
+
+    function makeId(prefix) {
+      return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    }
+
+    function createAccount(trigger) {
+      const scope = trigger.closest(".view") || document;
+      const type = scope.querySelector(".account-type").value;
+      const name = scope.querySelector(".account-name").value.trim() || "Новый пользователь";
+      const login = scope.querySelector(".account-login").value.trim() || `hani.${Date.now().toString().slice(-4)}`;
+      const password = scope.querySelector(".account-password").value.trim();
+      const city = type === "Супер-администратор" ? "Все города" : scope.querySelector(".account-city").value;
+      const branch = type === "Супер-администратор" ? "Все точки" : scope.querySelector(".account-branch").value;
+      const points = type === "Администратор"
+        ? (branch === "all" ? branchesForCity(city).map((item) => ({ city, branch: item })) : [{ city, branch }])
+        : undefined;
+      const account = {
+        id: makeId("account"),
+        type,
+        name,
+        login,
+        city,
+        branch,
+        access: type === "Супер-администратор" ? "вся сеть" : type === "Администратор" ? (points.length > 1 ? `${points.length} точки` : "филиал") : type === "Сотрудник" ? "переобучение" : "обучение",
+        ...(points ? { points } : {})
+      };
+      state.accounts.unshift(account);
+
+      if (type === "Стажёр") {
+        state.trainees.unshift({
+          id: makeId("trainee"),
+          name,
+          phone: "телефон не указан",
+          role: "роль назначается",
+          city,
+          branch,
+          admin: "не назначен",
+          start: "сегодня",
+          course: "Курс 1. Хани, команда и правила работы",
+          block: "Блок 1. Добро пожаловать в Hani",
+          progress: 0,
+          status: "в обучении",
+          statusType: "study",
+          attempts: "0/2",
+          courses: [],
+          wrong: []
+        });
+      }
+
+      if (type === "Сотрудник") {
+        state.employees.unshift({
+          id: makeId("employee"),
+          name,
+          phone: "телефон не указан",
+          role: "роль назначается",
+          city,
+          branch,
+          admin: "не назначен",
+          start: "сегодня",
+          course: "Переобучение не назначено",
+          block: "Ожидает назначения",
+          progress: 0,
+          status: "в обучении",
+          statusType: "study",
+          attempts: "0/2",
+          reason: "Аккаунт создан вручную, материал назначит управляющий.",
+          courses: [],
+          wrong: []
+        });
+      }
+
+      showToast(password ? "Аккаунт создан. Логин и пароль готовы к выдаче." : "Аккаунт создан. Пароль нужно выдать пользователю.");
+      render();
+    }
+
+    function readPercent(value, fallback = 70) {
+      const parsed = Number(value);
+      if (!Number.isFinite(parsed)) return fallback;
+      return Math.max(0, Math.min(100, parsed));
+    }
+
+    function syncContentFromScope(scope) {
+      const course = getCurrentCourse();
+      const block = getCurrentBlock();
+      const courseProgram = scope.querySelector(".course-program");
+      const courseTitle = scope.querySelector(".course-title");
+      const courseDescription = scope.querySelector(".course-description");
+      const courseActive = scope.querySelector(".course-active");
+      const courseFinal = scope.querySelector(".course-final");
+      const blockTitle = scope.querySelector(".content-block-title");
+      const blockDescription = scope.querySelector(".content-block-description");
+      const blockActive = scope.querySelector(".content-block-active");
+      const video = scope.querySelector(".content-video");
+      const text = scope.querySelector(".content-text");
+      const checklist = scope.querySelector(".content-checklist");
+      const passScore = scope.querySelector(".content-pass-score");
+      const questionCards = Array.from(scope.querySelectorAll(".question-card"));
+
+      if (course) {
+        if (courseProgram) course.program = courseProgram.value;
+        if (courseTitle) course.title = courseTitle.value.trim() || course.title;
+        if (courseDescription) course.description = courseDescription.value.trim();
+        if (courseActive) course.active = courseActive.checked;
+        if (courseFinal) course.final = courseFinal.checked;
+      }
+
+      if (block) {
+        if (blockTitle) block.title = blockTitle.value.trim() || block.title;
+        if (blockDescription) block.description = blockDescription.value.trim();
+        if (blockActive) block.active = blockActive.checked;
+        if (video) block.video = video.value.trim();
+        if (text) block.text = text.value.trim();
+        if (checklist) block.checklist = checklist.value.trim();
+        if (passScore) block.passScore = readPercent(passScore.value, block.passScore);
+        if (questionCards.length) {
+          block.questions = questionCards.map((card) => ({
+            text: card.querySelector(".question-text").value.trim() || "Новый вопрос",
+            critical: card.querySelector(".question-critical").checked,
+            answers: Array.from(card.querySelectorAll(".answer-row")).map((row) => ({
+              text: row.querySelector(".answer-text").value.trim() || "Вариант ответа",
+              correct: row.querySelector(".answer-correct").checked
+            }))
+          }));
+        }
+      }
+    }
+
+    function createCourse(trigger) {
+      const scope = trigger.closest(".view") || document;
+      const titleInput = scope.querySelector(".new-course-title");
+      const descriptionInput = scope.querySelector(".new-course-description");
+      const course = {
+        id: makeId("course"),
+        program: scope.querySelector(".new-course-program").value,
+        title: titleInput.value.trim() || "Новый курс",
+        description: descriptionInput.value.trim(),
+        active: scope.querySelector(".new-course-active").checked,
+        final: scope.querySelector(".new-course-final")?.checked || false,
+        blocks: []
+      };
+      state.content.courses.push(course);
+      state.content.selectedCourseId = course.id;
+      state.content.selectedBlockId = null;
+      state.content.view = "course";
+      showToast("Курс создан. Теперь можно добавить блоки внутри курса.");
+      render();
+    }
+
+    function saveContent(trigger) {
+      const scope = trigger.closest(".view") || document;
+      syncContentFromScope(scope);
+      showToast(state.contentTab === "test" ? "Тест блока сохранён." : "Материал блока сохранён.");
+      render();
+    }
+
+    function saveCourse(trigger) {
+      const scope = trigger.closest(".view") || document;
+      syncContentFromScope(scope);
+      showToast("Курс сохранён.");
+      render();
+    }
+
+    function createBlock(trigger) {
+      const scope = trigger.closest(".view") || document;
+      syncContentFromScope(scope);
+      const course = getCurrentCourse();
+      if (!course) return;
+      const block = {
+        id: makeId("block"),
+        title: scope.querySelector(".new-block-title").value.trim() || "Новый блок курса",
+        description: scope.querySelector(".new-block-description").value.trim(),
+        active: scope.querySelector(".new-block-active").checked,
+        passScore: readPercent(scope.querySelector(".new-block-pass-score").value, 70),
+        video: "",
+        text: "",
+        checklist: "",
+        questions: [
+          {
+            text: "Новый вопрос",
+            critical: false,
+            answers: [
+              { text: "Правильный вариант", correct: true },
+              { text: "Неправильный вариант", correct: false }
+            ]
+          }
+        ]
+      };
+      course.blocks.push(block);
+      state.content.selectedBlockId = block.id;
+      state.content.view = "block";
+      state.contentTab = "video";
+      showToast("Блок создан. Теперь его можно наполнить материалами и тестом.");
+      render();
+    }
+
+    function saveBlock(trigger) {
+      const scope = trigger.closest(".view") || document;
+      syncContentFromScope(scope);
+      showToast("Блок сохранён.");
+      render();
+    }
+
+    function addQuestion(trigger) {
+      const scope = trigger.closest(".view") || document;
+      syncContentFromScope(scope);
+      const block = getCurrentBlock();
+      if (!block) return;
+      block.questions.push({
+        text: "Новый вопрос",
+        critical: false,
+        answers: [
+          { text: "Правильный вариант", correct: true },
+          { text: "Неправильный вариант", correct: false }
+        ]
+      });
+      showToast("Вопрос добавлен.");
+      render();
+    }
+
+    function addAnswer(trigger) {
+      const scope = trigger.closest(".view") || document;
+      syncContentFromScope(scope);
+      const block = getCurrentBlock();
+      const index = Number(trigger.getAttribute("data-question"));
+      if (!block || !block.questions[index]) return;
+      block.questions[index].answers.push({ text: "Новый вариант ответа", correct: false });
+      showToast("Вариант ответа добавлен.");
+      render();
+    }
+
+    function saveSettings(trigger) {
+      const scope = trigger.closest(".view") || document;
+      state.settings.attempts = Number(scope.querySelector("#attemptLimit").value || 2);
+      state.settings.dailyLimit = Number(scope.querySelector("#dailyLimit").value || 2);
+      state.settings.sequentialBlocks = scope.querySelector("#sequentialBlocks").checked;
+      showToast("Настройки сохранены.");
+      render();
+    }
+
+    document.addEventListener("click", (event) => {
+      const nav = event.target.closest("[data-view]");
+      if (nav) {
+        setView(nav.getAttribute("data-view"));
+        return;
+      }
+
+      const contentTab = event.target.closest("[data-content-tab]");
+      if (contentTab) {
+        const scope = contentTab.closest(".view") || document;
+        syncContentFromScope(scope);
+        state.contentTab = contentTab.getAttribute("data-content-tab");
+        render();
+        return;
+      }
+
+      const action = event.target.closest("[data-action]");
+      if (!action) return;
+
+      const name = action.getAttribute("data-action");
+      const id = action.getAttribute("data-id");
+
+      if (name === "filter") {
+        const scope = action.getAttribute("data-scope") || "trainees";
+        state.filters[scope].status = action.getAttribute("data-filter");
+        render();
+      }
+      if (name === "open-person") {
+        state.selectedTraineeId = id;
+        state.selectedPersonType = action.getAttribute("data-type") || personKindById(id);
+        state.selectedReturnView = action.getAttribute("data-return-view") || state.selectedPersonType;
+        setView("trainee");
+      }
+      if (name === "open-trainee") {
+        state.selectedTraineeId = id;
+        state.selectedPersonType = personKindById(id);
+        state.selectedReturnView = action.getAttribute("data-return-view") || state.selectedPersonType;
+        setView("trainee");
+      }
+      if (name === "back-trainees") {
+        setView("trainees");
+      }
+      if (name === "back-people") {
+        setView(action.getAttribute("data-view") || state.selectedPersonType || "trainees");
+      }
+      if (name === "assign-retake") {
+        assignRetakeModal(id);
+      }
+      if (name === "add-retake-course") {
+        addRetakeCourse();
+      }
+      if (name === "remove-retake-course") {
+        removeRetakeCourse(action.getAttribute("data-choice-id"));
+      }
+      if (name === "change-retake-course") {
+        changeRetakeCourse(action.getAttribute("data-choice-id"));
+      }
+      if (name === "confirm-retake") {
+        confirmRetake(id);
+      }
+      if (name === "close-modal") {
+        closeModal();
+      }
+      if (name === "reset-attempts") {
+        confirmResetAttemptsModal(id);
+      }
+      if (name === "extra-attempt") {
+        resetAttempts(id, "extra");
+      }
+      if (name === "confirm-reset-attempts") {
+        closeModal();
+        resetAttempts(id);
+      }
+      if (name === "complete-final-stage") {
+        completeFinalStage(id);
+      }
+      if (name === "cancel-retake") {
+        cancelRetake(id);
+      }
+      if (name === "create-course") {
+        createCourse(action);
+      }
+      if (name === "open-course") {
+        state.content.selectedCourseId = action.getAttribute("data-course");
+        const course = getCurrentCourse();
+        state.content.selectedBlockId = course?.blocks[0]?.id || null;
+        state.content.view = "course";
+        render();
+      }
+      if (name === "back-courses") {
+        state.content.view = "courses";
+        render();
+      }
+      if (name === "save-content") {
+        saveContent(action);
+      }
+      if (name === "save-course") {
+        saveCourse(action);
+      }
+      if (name === "create-block") {
+        createBlock(action);
+      }
+      if (name === "open-block") {
+        state.content.selectedBlockId = action.getAttribute("data-block");
+        state.content.view = "block";
+        state.contentTab = "video";
+        render();
+      }
+      if (name === "back-course") {
+        state.content.view = "course";
+        render();
+      }
+      if (name === "save-block") {
+        saveBlock(action);
+      }
+      if (name === "add-question") {
+        addQuestion(action);
+      }
+      if (name === "add-answer") {
+        addAnswer(action);
+      }
+      if (name === "save-settings") {
+        saveSettings(action);
+      }
+      if (name === "create-account") {
+        createAccount(action);
+      }
+    });
+
+    document.addEventListener("change", (event) => {
+      const filter = event.target.closest("[data-network-filter]");
+      if (filter) {
+        const scope = filter.getAttribute("data-network-filter");
+        const name = filter.getAttribute("data-filter-name");
+        state.filters[scope][name] = filter.value;
+        if (name === "city") {
+          state.filters[scope].branch = "all";
+        }
+        render();
+        return;
+      }
+
+      if (event.target.matches(".account-city")) {
+        const scope = event.target.closest(".view") || document;
+        const branch = scope.querySelector(".account-branch");
+        branch.innerHTML = branchOptions(event.target.value, branchesForCity(event.target.value)[0] || "all");
+      }
+    });
+
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+
+    modalCard.addEventListener("change", (event) => {
+      if (event.target.matches("[data-retake-course-select]")) {
+        chooseRetakeCourse(event.target.getAttribute("data-choice-id"), event.target.value);
+      }
+      if (event.target.matches("#retakeSelectionList [data-retake-block]")) {
+        toggleRetakeBlock(event.target);
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
